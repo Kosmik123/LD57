@@ -45,6 +45,7 @@ GameObject:
   - component: {fileID: 7282194095413555353}
   - component: {fileID: 3227834664376412684}
   - component: {fileID: 1884842867317269501}
+  - component: {fileID: 1062703112067160139}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -105,7 +106,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4dac6bf81adf864f9f12d44fe8807e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 4
+  moveSpeed: 7
   rotateSpeed: 0
   forwardProvider: {fileID: 0}
   horizontalAxis: Horizontal
@@ -122,6 +123,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 017b1688a37c7e340a84c6615d848975, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rotationSpeed: 700
+--- !u!114 &1062703112067160139
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1231444528877791776}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: daec973635dbe05488272ce7d27789b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dashKey: 32
+  dashSpeed: 32
+  dashDuration: 0.3
+  componentsDisabledWhileDashing:
+  - {fileID: 1884842867317269501}
+  - {fileID: 3227834664376412684}
 --- !u!1 &1586734361900058663
 GameObject:
   m_ObjectHideFlags: 0

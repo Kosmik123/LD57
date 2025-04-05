@@ -649,7 +649,8 @@ PrefabInstance:
       propertyPath: forwardProvider
       value: 
       objectReference: {fileID: 330585546}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4923489375063244399, guid: 90dccedcbc31b2a48a6d75846eaebfc0, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
