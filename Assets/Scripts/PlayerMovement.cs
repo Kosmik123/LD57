@@ -1,10 +1,14 @@
 using NaughtyAttributes;
 using System;
 using UnityEngine;
+using UnityEngine.PlayerLoop;
+using UnityEngine.Rendering.Universal;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
 {
+    public event System.Action OnDashed;
+
     [Foldout("Movement")]
     [SerializeField]
     private Transform forwardProvider;
@@ -35,6 +39,7 @@ public class PlayerMovement : MonoBehaviour
     [Foldout("Grounded")]
     [ShowNonSerializedField]
     private bool isGrounded;
+    public bool IsGrounded => isGrounded;   
 
     [Foldout("Jump"), SerializeField]
     private float jumpSpeed;
@@ -50,6 +55,12 @@ public class PlayerMovement : MonoBehaviour
     private float dashSpeed;
     [Foldout("Dash"), SerializeField]
     private float dashDistance;
+    [ShowNonSerializedField]
+    private bool isDashing;
+    public bool IsDashing => isDashing;
+
+    [ShowNonSerializedField]
+    private Vector3 dashDirection;
 
     [SerializeField]
     private float fallingDownGravityModifier = 3f;
@@ -57,7 +68,11 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody rb;
     
     private float horizontal, vertical;
+    private Vector3 localDirection;
+    public Vector2 LocalDirection => new Vector2(localDirection.x, localDirection.z);
+
     private bool jumpRequested;
+    private bool dashRequested;
 
     private void Awake()
     {
@@ -76,13 +91,16 @@ public class PlayerMovement : MonoBehaviour
         
         UpdateMovement();
         UpdateJump();
+        UpdateDash();
     }
+
 
     private void UpdateInput()
     {
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
         jumpRequested = Input.GetButtonDown("Jump");
+        dashRequested = Input.GetButtonDown("Dash");
     }
 
     private void CheckGrounded()
@@ -92,6 +110,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void UpdateMovement()
     {
+        if (isDashing)
+            return;
+
         Vector3 forward = forwardProvider ? forwardProvider.forward : Vector3.forward;
         forward.y = 0;
         forward.Normalize();
@@ -101,7 +122,7 @@ public class PlayerMovement : MonoBehaviour
         if (direction.sqrMagnitude > 1)
             direction.Normalize();
 
-        var localDirection = transform.InverseTransformDirection(direction);
+        localDirection = transform.InverseTransformDirection(direction);
         localDirection.x *= sidewaysSpeedModified;
         if (localDirection.z < 0)
             localDirection.z *= backwardsSpeedModified;
@@ -134,7 +155,38 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    public bool CanJump() => !hasJumped && (isGrounded || coyoteTimeCounter > 0);
+    private void UpdateDash()
+    {
+        if (!isDashing && dashRequested)
+        {
+            StartDash();
+        }
+    }
+
+    private void StartDash()
+    {
+        isDashing = true;
+        float dashDuration = dashDistance / dashSpeed;
+        var  velocity = rb.linearVelocity;
+        velocity.y = 0;
+        if (velocity.sqrMagnitude > 0.001f)
+        {
+            dashDirection = velocity.normalized;
+        }
+        else
+        {
+            dashDirection = transform.forward;
+        }
+        Invoke(nameof(EndDash), dashDuration);
+        OnDashed?.Invoke();
+    }
+
+    private void EndDash()
+    {
+        isDashing = false;  
+    }
+
+    public bool CanJump() => !isDashing && !hasJumped && (isGrounded || coyoteTimeCounter > 0);
 
     public bool WantsToJump() => jumpRequested || inputBufferCounter > 0;
 
@@ -153,7 +205,14 @@ public class PlayerMovement : MonoBehaviour
         {
             rb.AddForce((fallingDownGravityModifier - 1) * Physics.gravity.y * Vector3.up, ForceMode.Acceleration);
         }
-        rb.linearVelocity = new Vector3(targetVelocity.x, rb.linearVelocity.y, targetVelocity.z);
+        if (isDashing)
+        {
+            rb.linearVelocity = dashDirection * dashSpeed;
+        }
+        else
+        {
+            rb.linearVelocity = new Vector3(targetVelocity.x, rb.linearVelocity.y, targetVelocity.z);
+        }
     }
 
     private void ResetJump() => hasJumped = false;
