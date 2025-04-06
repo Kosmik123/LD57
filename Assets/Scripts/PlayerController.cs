@@ -1,11 +1,8 @@
 using NaughtyAttributes;
-using System;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
-using UnityEngine.Rendering.Universal;
 
 [RequireComponent(typeof(Rigidbody))]
-public class PlayerMovement : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
     public event System.Action OnDashed;
 
@@ -93,7 +90,6 @@ public class PlayerMovement : MonoBehaviour
         UpdateJump();
         UpdateDash();
     }
-
 
     private void UpdateInput()
     {

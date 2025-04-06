@@ -5,7 +5,7 @@ public class PlayerAnimations : MonoBehaviour
     [SerializeField]
     private Animator animator;
     [SerializeField]
-    private PlayerMovement playerMovement;
+    private PlayerController playerMovement;
 
     private void Update()
     {
