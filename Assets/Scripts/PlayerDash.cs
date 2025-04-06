@@ -1,9 +1,7 @@
 ﻿using NaughtyAttributes;
-using System;
 using UnityEngine;
 
-[RequireComponent(typeof(CharacterController))]
-public class CharacterDash : MonoBehaviour
+public class PlayerDash : MonoBehaviour
 {
     [SerializeField]
     private KeyCode dashKey = KeyCode.Space;
@@ -11,7 +9,7 @@ public class CharacterDash : MonoBehaviour
     [SerializeField]
     private float dashSpeed = 5f;
     [SerializeField]
-    private float dashDuration = 0.5f;
+    private float dashDistance = 5f;
 
     [SerializeField]
     private Behaviour[] componentsDisabledWhileDashing;
@@ -38,11 +36,11 @@ public class CharacterDash : MonoBehaviour
         }
         else if (Input.GetKeyDown(dashKey))
         {
-            Dash();
+            StartDash();
         }
     }
 
-    private void Dash()
+    private void StartDash()
     {
         isDashing = true;
         foreach (var c in componentsDisabledWhileDashing)
@@ -58,7 +56,8 @@ public class CharacterDash : MonoBehaviour
         {
             dashDirection = transform.forward;
         }
-        Invoke(nameof(EndDash), dashDuration);
+        float duration = dashDistance / dashSpeed;
+        Invoke(nameof(EndDash), duration);
     }
 
     private void EndDash()
