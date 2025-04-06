@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Enemies.Movement
 {
+    [AddComponentMenu(Paths.MovementRetargetting + "Time Delay Retargetting Strategy")]
     public class TimeDelayRetargettingStrategy : EnemyRetargettingStrategy
     {
         [SerializeField]

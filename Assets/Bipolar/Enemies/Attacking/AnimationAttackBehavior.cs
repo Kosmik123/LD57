@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Enemies.Attacking
 {
+    [AddComponentMenu(Paths.Attacking + "Animation Attack Behavior")]
     public class AnimationAttackBehavior : AttackBehavior
     {
         [SerializeField]

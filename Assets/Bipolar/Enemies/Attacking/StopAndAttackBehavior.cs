@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Enemies.Attacking
 {
+    [AddComponentMenu(Paths.Attacking + "Stop and Attack Behavior")]
     public class StopAndAttackBehavior : AttackBehavior
     {
         [SerializeField]

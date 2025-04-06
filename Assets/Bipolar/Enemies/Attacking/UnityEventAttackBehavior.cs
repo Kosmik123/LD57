@@ -3,6 +3,7 @@ using UnityEngine.Events;
 
 namespace Enemies.Attacking
 {
+    [AddComponentMenu(Paths.Attacking + "Unity Event Attack Behavior")]
     public class UnityEventAttackBehavior : AttackBehavior
     {
         [SerializeField]

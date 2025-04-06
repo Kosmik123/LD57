@@ -2,6 +2,7 @@
 
 namespace Enemies
 {
+    [AddComponentMenu(Paths.ActivationConditions + "Any Condition")]
     public class AnyCondition : EnemyActivationCondition
     {
         [SerializeField]

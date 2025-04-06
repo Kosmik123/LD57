@@ -7,9 +7,8 @@
         
         public const string Attacking = Root + "Attacking/";
 
-
         public const string Movement = Root + "Movement/";
-
+        public const string MovementRetargetting = Movement + "Retargetting/";
 
         public const string Targetting = Root + "Targetting/";
     }

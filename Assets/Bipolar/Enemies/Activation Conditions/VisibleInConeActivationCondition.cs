@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Enemies
 {
+    [AddComponentMenu(Paths.ActivationConditions + "Visible In Cone Activation Condition")]
     public class VisibleInConeActivationCondition : EnemyActivationCondition
     {
         [SerializeField]

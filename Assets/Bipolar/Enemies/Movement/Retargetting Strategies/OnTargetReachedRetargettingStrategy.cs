@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Enemies.Movement
 {
+    [AddComponentMenu(Paths.MovementRetargetting + "On Target Reached Retargetting Strategy")]
     public class OnTargetReachedRetargettingStrategy : EnemyRetargettingStrategy
     {
         [SerializeField, Required]

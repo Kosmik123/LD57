@@ -3,6 +3,7 @@ using UnityEngine.AI;
 
 namespace Enemies.Movement
 {
+    [AddComponentMenu(Paths.Movement + "NavMesh Enemy Movement Behavior")]
     public class NavMeshEnemyMovementBehavior : EnemyMovementBehavior
     {
         [SerializeField]

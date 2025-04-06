@@ -2,6 +2,7 @@
 
 namespace Enemies.Movement
 {
+    [AddComponentMenu(Paths.Movement + "Straight Enemy Movement Behavior")]
     public class StraightEnemyMovementBehavior : EnemyMovementBehavior
     {
         [SerializeField]

@@ -1,10 +1,10 @@
-﻿using Bipolar;
-using NaughtyAttributes;
+﻿using NaughtyAttributes;
 using UnityEditor;
 using UnityEngine;
 
 namespace Enemies
 {
+    [AddComponentMenu(Paths.ActivationConditions + "Distance Activation Condition")]
     public class DistanceActivationCondition : EnemyActivationCondition
     {
         [SerializeField, Tooltip("Transform which will revive enemy when nearby")]

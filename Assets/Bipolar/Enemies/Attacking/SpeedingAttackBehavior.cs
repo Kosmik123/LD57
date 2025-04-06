@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Enemies.Attacking
 {
+    [AddComponentMenu(Paths.Attacking + "Speeding Attack Behavior")]
     public class SpeedingAttackBehavior : AttackBehavior
     {
         [SerializeField]
@@ -30,6 +31,7 @@ namespace Enemies.Attacking
             direction.y = 0;
             isRunning = true;
             timer = new Timer(this, duration: runningDuration, onElapsed: StopRunning);
+            timer.Start();
         }
 
         private void Update()
