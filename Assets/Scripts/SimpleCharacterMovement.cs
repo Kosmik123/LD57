@@ -47,6 +47,9 @@ public class SimpleCharacterMovement : MonoBehaviour
         float vertical = Input.GetAxis(verticalAxis);
 
         Vector3 direction = horizontal * right + vertical * forward;
+        if (direction.sqrMagnitude > 1)
+            direction.Normalize();
+
         if (moveSpeed > 0)
             characterController.SimpleMove(moveSpeed * direction);
 

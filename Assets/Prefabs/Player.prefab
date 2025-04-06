@@ -136,7 +136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: daec973635dbe05488272ce7d27789b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dashKey: 32
+  dashKey: 304
   dashSpeed: 32
   dashDuration: 0.3
   componentsDisabledWhileDashing:
