@@ -45,9 +45,9 @@ GameObject:
   - component: {fileID: 638063804369704979}
   - component: {fileID: 5553257222232137388}
   - component: {fileID: 1884842867317269501}
-  - component: {fileID: 5896027384249674395}
   - component: {fileID: 3027167383752007480}
   - component: {fileID: 5855280524400054193}
+  - component: {fileID: 8693364677833119551}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -112,34 +112,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rotationSpeed: 700
---- !u!114 &5896027384249674395
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1231444528877791776}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 845c51ebbeb10794698bd62601387408, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  forwardProvider: {fileID: 0}
-  moveSpeed: 8
-  sidewaysSpeedModified: 0.9
-  backwardsSpeedModified: 0.8
-  inAirSpeedModified: 0.5
-  groundPoint: {fileID: 433405139725278203}
-  groundCheckRadius: 0.24
-  groundLayers:
-    serializedVersion: 2
-    m_Bits: 279
-  jumpSpeed: 8.5
-  coyoteTime: 0.25
-  inputBuffer: 0.25
-  dashSpeed: 20
-  dashDistance: 5
-  fallingDownGravityModifier: 3
 --- !u!114 &3027167383752007480
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -153,7 +125,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 3409354869519731624}
-  playerMovement: {fileID: 5896027384249674395}
+  playerMovement: {fileID: 8693364677833119551}
 --- !u!114 &5855280524400054193
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -166,6 +138,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9bcb5c56c10bcf4aaae918957451607, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &8693364677833119551
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1231444528877791776}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b74284685a130b243aa96d0b85a0687c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  forwardProvider: {fileID: 0}
+  moveSpeed: 5
+  sidewaysSpeedModified: 0.9
+  backwardsSpeedModified: 0.8
+  inAirSpeedModified: 0.5
+  groundPoint: {fileID: 0}
+  groundCheckRadius: 0.1
+  groundLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  jumpSpeed: 0
+  coyoteTime: 0.2
+  inputBuffer: 0.2
+  dashSpeed: 0
+  dashDistance: 0
+  fallingDownGravityModifier: 3
 --- !u!1 &1586734361900058663
 GameObject:
   m_ObjectHideFlags: 0
