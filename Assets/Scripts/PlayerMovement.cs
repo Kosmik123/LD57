@@ -27,6 +27,10 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 targetVelocity;
 
     [Foldout("Grounded"), SerializeField]
+    private Transform groundPoint;
+    [Foldout("Grounded"), SerializeField]
+    private float groundCheckRadius = 0.1f;
+    [Foldout("Grounded"), SerializeField]
     private LayerMask groundLayers;
     [Foldout("Grounded")]
     [ShowNonSerializedField]
@@ -40,11 +44,15 @@ public class PlayerMovement : MonoBehaviour
     [Foldout("Jump"), SerializeField]
     private float inputBuffer = 0.2f;
     private float inputBufferCounter;
-
+    private bool hasJumped;
+    
     [Foldout("Dash"), SerializeField]
     private float dashSpeed;
     [Foldout("Dash"), SerializeField]
     private float dashDistance;
+
+    [SerializeField]
+    private float fallingDownGravityModifier = 3f;
 
     private Rigidbody rb;
     
@@ -56,13 +64,18 @@ public class PlayerMovement : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
+    private void OnEnable()
+    {
+        ResetJump();
+    }
+
     private void Update()
     {
         UpdateInput();
         CheckGrounded();
         
         UpdateMovement();
-        UpdateJump();   
+        UpdateJump();
     }
 
     private void UpdateInput()
@@ -74,7 +87,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void CheckGrounded()
     {
-        isGrounded = Physics.CheckSphere(transform.position, 0.1f, groundLayers);
+        isGrounded = Physics.CheckSphere(groundPoint.position, groundCheckRadius, groundLayers);
     }
 
     private void UpdateMovement()
@@ -121,7 +134,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    public bool CanJump() => isGrounded || coyoteTimeCounter > 0;
+    public bool CanJump() => !hasJumped && (isGrounded || coyoteTimeCounter > 0);
 
     public bool WantsToJump() => jumpRequested || inputBufferCounter > 0;
 
@@ -129,11 +142,28 @@ public class PlayerMovement : MonoBehaviour
     {
         if (CanJump() && WantsToJump())
         {
+            hasJumped = true;
             rb.AddForce(Vector3.up * jumpSpeed, ForceMode.VelocityChange);
             jumpRequested = false;
             inputBufferCounter = 0;
+            coyoteTimeCounter = 0;
+            Invoke(nameof(ResetJump), 0.4f);
         }
-
+        if (rb.linearVelocity.y < 0)
+        {
+            rb.AddForce((fallingDownGravityModifier - 1) * Physics.gravity.y * Vector3.up, ForceMode.Acceleration);
+        }
         rb.linearVelocity = new Vector3(targetVelocity.x, rb.linearVelocity.y, targetVelocity.z);
+    }
+
+    private void ResetJump() => hasJumped = false;
+
+    private void OnDrawGizmosSelected()
+    {
+        if (groundPoint)
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(groundPoint.position, groundCheckRadius);
+        }
     }
 }

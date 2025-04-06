@@ -206,8 +206,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.4226183, y: 0, z: 0, w: 0.9063078}
-  m_LocalPosition: {x: 0, y: 19.174622, z: -9.699026}
+  m_LocalRotation: {x: 0, y: 0.90630776, z: -0.42261833, w: 0}
+  m_LocalPosition: {x: 0, y: 19.174623, z: 8.299026}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -273,6 +273,7 @@ MonoBehaviour:
   observedTarget: {fileID: 1171285879}
   pitchAngle: 50
   distanceFromTarget: 14
+  shouldRotateAroundCenter: 1
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0

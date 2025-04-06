@@ -11,7 +11,7 @@ public class LookAtCursor : MonoBehaviour
     [ShowNonSerializedField]
     private float targetAngle;
     [ShowNonSerializedField]
-    private float currentAngle; 
+    private float currentAngle;
 
     private void Awake()
     {
@@ -20,7 +20,7 @@ public class LookAtCursor : MonoBehaviour
 
     private void OnEnable()
     {
-        currentAngle = transform.rotation.eulerAngles.y;
+        currentAngle = transform.eulerAngles.y;
     }
 
     private void Update()
@@ -28,9 +28,13 @@ public class LookAtCursor : MonoBehaviour
         var screenPosition = viewCamera.WorldToScreenPoint(transform.position);
         var mousePosition = Input.mousePosition;
         Vector2 screenDirection = mousePosition - screenPosition;
-        targetAngle = Mathf.Atan2(screenDirection.x, screenDirection.y) * Mathf.Rad2Deg;
-        
+        targetAngle = viewCamera.transform.eulerAngles.y + Mathf.Atan2(screenDirection.x, screenDirection.y) * Mathf.Rad2Deg;
+
         currentAngle = Mathf.MoveTowardsAngle(currentAngle, targetAngle, Time.deltaTime * rotationSpeed);
+    }
+
+    private void FixedUpdate()
+    {
         transform.rotation = Quaternion.AngleAxis(currentAngle, Vector3.up);
     }
 }

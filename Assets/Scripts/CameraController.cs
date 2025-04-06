@@ -10,6 +10,8 @@ public class CameraController : MonoBehaviour
     private float pitchAngle = 60;
     [SerializeField]
     private float distanceFromTarget;
+    [SerializeField]
+    private bool shouldRotateAroundCenter = true;
 
     private void LateUpdate()
     {
@@ -18,14 +20,21 @@ public class CameraController : MonoBehaviour
 
     private void ApplyPosition()
     {
-        Vector3 targetPosition = observedTarget.position;
-        var direction = targetPosition - center.position;
-        direction.y = 0;
-        var localRight = Vector3.Cross(Vector3.up, direction);
-        var lookDirection = (Quaternion.AngleAxis(pitchAngle, localRight) * direction).normalized;
+        if (shouldRotateAroundCenter)
+        {
+            Vector3 targetPosition = observedTarget.position;
+            var direction = targetPosition - center.position;
+            direction.y = 0;
+            var localRight = Vector3.Cross(Vector3.up, direction);
+            var lookDirection = (Quaternion.AngleAxis(pitchAngle, localRight) * direction).normalized;
 
-        transform.position = targetPosition - distanceFromTarget * lookDirection;
-        transform.forward = lookDirection;
+            transform.position = targetPosition - distanceFromTarget * lookDirection;
+            transform.forward = lookDirection;
+        }
+        else
+        {
+
+        }
     }
 
     private void OnValidate()
