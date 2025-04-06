@@ -157,7 +157,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void UpdateDash()
     {
-        if (!isDashing && dashRequested)
+        if (!isDashing && isGrounded && dashRequested)
         {
             StartDash();
         }
@@ -201,10 +201,12 @@ public class PlayerMovement : MonoBehaviour
             coyoteTimeCounter = 0;
             Invoke(nameof(ResetJump), 0.4f);
         }
+        
         if (rb.linearVelocity.y < 0)
         {
             rb.AddForce((fallingDownGravityModifier - 1) * Physics.gravity.y * Vector3.up, ForceMode.Acceleration);
         }
+
         if (isDashing)
         {
             rb.linearVelocity = dashDirection * dashSpeed;
