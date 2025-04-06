@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Enemies.Targetting
 {
-    [AddComponentMenu(Paths.Targetting + "Random Enemy Target Provider")]
+    [AddComponentMenu(Paths.Targetting + "Random Point Target Provider")]
     public class RandomPointTargetProvider : EnemyTargetProvider
     {
         [Header("Settings")]

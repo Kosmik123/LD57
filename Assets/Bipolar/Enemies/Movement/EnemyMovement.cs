@@ -7,7 +7,7 @@ namespace Enemies.Movement
     public class EnemyMovement : MonoBehaviour
     {
         [SerializeField, Required]
-        private EnemyRetargettingStrategy retargetingStrategy;
+        private EnemyActivationCondition retargettingCondition;
         [SerializeField, Required]
         private EnemyTargetProvider targetProvider;
         [SerializeField, Required]
@@ -21,12 +21,19 @@ namespace Enemies.Movement
 
         private void OnEnable()
         {
-            retargetingStrategy.enabled = true;
+            retargettingCondition.enabled = true;
             targetProvider.enabled = true;
             movement.enabled = true;
 
-            retargetingStrategy.OnRetargettingRequested += RetargetEnemy;
             RetargetEnemy();
+        }
+
+        protected virtual void Update()
+        {
+            if (retargettingCondition.CheckCondition())
+            {
+                RetargetEnemy();
+            }
         }
 
         private void RetargetEnemy()
@@ -38,8 +45,7 @@ namespace Enemies.Movement
 
         private void OnDisable()
         {
-            retargetingStrategy.OnRetargettingRequested -= RetargetEnemy;
-            retargetingStrategy.enabled = false;
+            retargettingCondition.enabled = false;
             targetProvider.enabled = false;
             movement.enabled = false;
         }
@@ -85,13 +91,21 @@ namespace Enemies.Movement
         }
     }
 
-    public abstract class EnemyRetargettingStrategy : MonoBehaviour
+    public abstract class EnemyRetargettingStrategy : EnemyActivationCondition
     {
-        public event System.Action OnRetargettingRequested;
+        protected bool shouldRetarget;
+
+        public sealed override bool CheckCondition()
+        {
+            if (shouldRetarget == false)
+                return false;
+            shouldRetarget = false;
+            return true;
+        }
 
         protected void RequestRetargetting()
         {
-            OnRetargettingRequested?.Invoke();
+            shouldRetarget = true;
         }
     }
 }
