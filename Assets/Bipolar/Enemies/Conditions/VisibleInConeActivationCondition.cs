@@ -1,31 +1,34 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace Enemies
+namespace Enemies.Conditions
 {
-    [AddComponentMenu(Paths.ActivationConditions + "Visible In Cone Activation Condition")]
-    public class VisibleInConeActivationCondition : EnemyActivationCondition
+    [System.Serializable]
+    public class VisibleInConeActivationCondition : Condition
     {
         [SerializeField]
-        private Transform player;
+        private Transform target;
 
         [SerializeField, Min(0)]
         private float viewDistance = 10;
         [SerializeField, Range(0, 90)]
         private float viewAngle = 30;
 
+        private int lastCheckFrame = -1;
         private bool isInView;
-        public override bool CheckCondition() => isInView;
 
-        private void Update()
+        public override bool Check()
         {
-            isInView = IsInView();
+            if (lastCheckFrame != Time.frameCount)
+                isInView = IsInView();
+
+            return isInView;
         }
 
         public bool IsInView()
         {
-            Vector3 forward = transform.forward;
-            Vector3 direction = player.position - transform.position;
+            Vector3 forward = Enemy.transform.forward;
+            Vector3 direction = target.position - Enemy.transform.position;
             if (Vector3.Angle(forward, direction) > viewAngle)
                 return false;
 
@@ -36,24 +39,23 @@ namespace Enemies
             return true;
         }
 
-#if UNITY_EDITOR
-        private void OnDrawGizmosSelected()
+        protected internal override void DrawGizmos()
         {
             float radius = viewDistance * Mathf.Tan(viewAngle * Mathf.Deg2Rad);
-            GizmosDrawCone(transform.position, transform.forward, radius, viewDistance);
+            GizmosDrawCone(Enemy.transform.position, Enemy.transform.forward, radius, viewDistance);
             if (Application.isPlaying && isInView)
             {
                 Gizmos.color = Color.green;
-                Gizmos.DrawLine(transform.position, player.position); 
+                Gizmos.DrawLine(Enemy.transform.position, target.position);
             }
         }
 
         private void GizmosDrawCone(Vector3 position, Vector3 direction, float radius, float height)
         {
+#if UNITY_EDITOR
             direction.Normalize();
             Vector3 baseCenter = position + direction * height;
-            Handles.color = 0.7f * Color.white;
-            Gizmos.color = 0.7f * Color.white;
+            Gizmos.color = Handles.color = 0.7f * Color.white;
             Handles.DrawWireDisc(baseCenter, direction, radius);
             Vector3 left = Vector3.Cross(direction, Vector3.up);
             Gizmos.DrawLine(position, baseCenter + left * radius);
@@ -61,7 +63,7 @@ namespace Enemies
             Vector3 down = Vector3.Cross(direction, left);
             Gizmos.DrawLine(position, baseCenter + down * radius);
             Gizmos.DrawLine(position, baseCenter - down * radius);
-        }
 #endif
+        }
     }
 }

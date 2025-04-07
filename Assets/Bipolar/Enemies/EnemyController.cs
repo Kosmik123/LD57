@@ -1,13 +1,11 @@
 using NaughtyAttributes;
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Enemies
 {
-    public sealed class EnemyBehaviorsController : MonoBehaviour
+    public sealed class EnemyController : MonoBehaviour
     {
-        public event Action<bool> OnActiveChanged;
+        public event System.Action<bool> OnActiveChanged;
 
         [Header("Activation")]
         [SerializeField]
@@ -15,8 +13,8 @@ namespace Enemies
         [SerializeField]
         private Behaviour activeBehavior;
 
-        [SerializeField]
-        private EnemyActivationCondition[] activationConditions;
+        [SerializeReference, SubclassSelector]
+        private Condition activationCondition;
         [SerializeField]
         private float deactivationDelay = 4;
         [SerializeField, ReadOnly]
@@ -27,8 +25,8 @@ namespace Enemies
         public bool IsActive => isActive;
 
         [Header("Attacking")]
-        [SerializeField]
-        private EnemyActivationCondition[] attackConditions;
+        [SerializeReference, SubclassSelector]
+        private Condition attackCondition;
         
         [SerializeField]
         private float attackDelay;
@@ -41,13 +39,16 @@ namespace Enemies
 
         private void Awake()
         {
+            activationCondition?.Init(this);
+            attackCondition?.Init(this);
+
             Deactivate();
         }
 
         private void Update()
         {
             float dt = Time.deltaTime;
-            bool shouldBeActive = AreAllConditionsFulfilled(activationConditions);
+            bool shouldBeActive = activationCondition?.Check() ?? false;
             if (shouldBeActive)
             {
                 deactivationTimer = deactivationDelay;
@@ -66,7 +67,7 @@ namespace Enemies
             attackTimer = Mathf.Max(attackTimer, 0);
             if (isActive && CanAttack)
             {
-                bool shouldAttack = AreAllConditionsFulfilled(attackConditions);
+                bool shouldAttack = attackCondition?.Check() ?? false;
                 if (shouldAttack)
                 {
                     Attack();
@@ -81,14 +82,6 @@ namespace Enemies
                 attackBehavior.Attack();
         }
 
-        public bool AreAllConditionsFulfilled(IReadOnlyList<EnemyActivationCondition> conditions)
-        {
-            foreach (var condition in conditions)
-                if (condition.CheckCondition() == false)
-                    return false;
-
-            return conditions.Count > 0;
-        }
 
         private void Deactivate() => Activate(false);
 
@@ -108,11 +101,30 @@ namespace Enemies
             if (oldActive != isActive)
                 OnActiveChanged?.Invoke(isActive);
         }
+
+        private void OnValidate()
+        {
+            activationCondition?.Init(this);
+            attackCondition?.Init(this);
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            activationCondition?.DrawGizmos();
+            attackCondition?.DrawGizmos();
+        }
     }
 
-    public abstract class EnemyActivationCondition : MonoBehaviour
+    [System.Serializable]
+    public abstract class Condition
     {
-        public abstract bool CheckCondition();
+        public EnemyController Enemy { get; private set; }
+
+        internal void Init(EnemyController enemy) => Enemy = enemy;
+
+        public abstract bool Check();
+
+        internal protected virtual void DrawGizmos() { }
     }
 
     public abstract class AttackBehavior : MonoBehaviour

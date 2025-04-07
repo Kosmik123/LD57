@@ -2,10 +2,10 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Enemies
+namespace Enemies.Conditions
 {
-    [AddComponentMenu(Paths.ActivationConditions + "Distance Activation Condition")]
-    public class DistanceActivationCondition : EnemyActivationCondition
+    [System.Serializable]
+    public class DistanceActivationCondition : Condition
     {
         [SerializeField, Tooltip("Transform which will revive enemy when nearby")]
         private Transform activator;
@@ -17,9 +17,9 @@ namespace Enemies
         [SerializeField, ReadOnly]
         private bool isNearby;
 
-        public override bool CheckCondition()
+        public override bool Check()
         {
-            float squareDistance = (transform.position - activator.position).sqrMagnitude;
+            float squareDistance = (Enemy.transform.position - activator.position).sqrMagnitude;
             if (isNearby == false && squareDistance < distance * distance)
             {
                 isNearby = true;
@@ -33,7 +33,7 @@ namespace Enemies
         }
 
 #if UNITY_EDITOR
-        private void OnDrawGizmosSelected()
+        override protected internal void DrawGizmos()
         {
             if (Application.isPlaying) 
             {
@@ -50,7 +50,7 @@ namespace Enemies
         {
             Handles.color = nearby ? Color.red : Color.cyan;
             float radius = nearby ? distance + deadzone : distance;
-            Handles.DrawWireArc(transform.position, Vector3.up, Vector3.forward, 360, radius);
+            Handles.DrawWireArc(Enemy.transform.position, Vector3.up, Vector3.forward, 360, radius);
         }
 #endif
     }

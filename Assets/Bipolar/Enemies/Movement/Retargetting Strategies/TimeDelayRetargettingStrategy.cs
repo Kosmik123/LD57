@@ -13,7 +13,7 @@ namespace Enemies.Movement
 
         private void Awake()
         {
-            timer = new Timer(this, onElapsed: Timer_OnElapsed);
+            //timer = new Timer(nul, onElapsed: Timer_OnElapsed);
         }
 
         private void OnEnable()

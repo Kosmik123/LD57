@@ -16,7 +16,7 @@ namespace Enemies.Movement
 
         private void OnEnable()
         {
-            timer = new Timer(this);
+            //timer = new Timer(this);
             enemyMovement.OnTargetReached += EnemyMovement_OnTargetReached;
         }
 

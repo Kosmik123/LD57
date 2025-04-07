@@ -3,7 +3,7 @@
     internal class Paths
     {
         public const string Root = "Enemies/";
-        public const string ActivationConditions = Root + "Activation Conditions/";
+        public const string Conditions = Root + "Conditions/";
         
         public const string Attacking = Root + "Attacking/";
 

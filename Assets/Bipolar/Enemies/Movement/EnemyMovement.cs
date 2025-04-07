@@ -7,7 +7,7 @@ namespace Enemies.Movement
     public class EnemyMovement : MonoBehaviour
     {
         [SerializeField, Required]
-        private EnemyActivationCondition retargettingCondition;
+        private Condition retargettingCondition;
         [SerializeField, Required]
         private EnemyTargetProvider targetProvider;
         [SerializeField, Required]
@@ -21,7 +21,6 @@ namespace Enemies.Movement
 
         private void OnEnable()
         {
-            retargettingCondition.enabled = true;
             targetProvider.enabled = true;
             movement.enabled = true;
 
@@ -30,7 +29,7 @@ namespace Enemies.Movement
 
         protected virtual void Update()
         {
-            if (retargettingCondition.CheckCondition())
+            if (retargettingCondition.Check())
             {
                 RetargetEnemy();
             }
@@ -45,7 +44,6 @@ namespace Enemies.Movement
 
         private void OnDisable()
         {
-            retargettingCondition.enabled = false;
             targetProvider.enabled = false;
             movement.enabled = false;
         }
@@ -91,11 +89,11 @@ namespace Enemies.Movement
         }
     }
 
-    public abstract class EnemyRetargettingStrategy : EnemyActivationCondition
+    public abstract class EnemyRetargettingStrategy : Condition
     {
         protected bool shouldRetarget;
 
-        public sealed override bool CheckCondition()
+        public sealed override bool Check()
         {
             if (shouldRetarget == false)
                 return false;
