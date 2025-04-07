@@ -6,7 +6,7 @@ public class CameraController : MonoBehaviour
     private Transform center;
     [SerializeField]
     private Transform observedTarget;
-    [SerializeField, Range(-90, 90)]
+    [SerializeField, Range(-90, 89.99f)]
     private float pitchAngle = 60;
     [SerializeField]
     private float distanceFromTarget;

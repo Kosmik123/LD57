@@ -18,7 +18,9 @@ MonoBehaviour:
   m_Variables:
   - rid: 152965322557358442
   - rid: 152965322557358443
-  m_VersionTimestamp: 638796174792589471
+  - rid: 152965324031656443
+  - rid: 152965324031656467
+  m_VersionTimestamp: 638796240284855367
   m_CommandBuffer:
     m_Commands: []
   m_RuntimeBlackboardAsset: {fileID: 2910507154269342502}
@@ -31,7 +33,7 @@ MonoBehaviour:
         ID:
           m_Value0: 18049042902216214517
           m_Value1: 8143088988509485350
-        Name: Min Wait Duration
+        Name: Wandering Min Wait Duration
         IsExposed: 1
         m_IsShared: 1
         m_Value: 1
@@ -41,10 +43,30 @@ MonoBehaviour:
         ID:
           m_Value0: 11819220328131130025
           m_Value1: 9502028503101924639
-        Name: Max Wait Duration
+        Name: Wandering Max Wait Duration
         IsExposed: 1
         m_IsShared: 1
         m_Value: 3
+    - rid: 152965324031656443
+      type: {class: 'TypedVariableModel`1[[System.Single, mscorlib]]', ns: Unity.Behavior.GraphFramework, asm: Unity.Behavior.GraphFramework}
+      data:
+        ID:
+          m_Value0: 4511093286412840932
+          m_Value1: 2917960547411268262
+        Name: Detect Player Distance
+        IsExposed: 1
+        m_IsShared: 1
+        m_Value: 10
+    - rid: 152965324031656467
+      type: {class: 'TypedVariableModel`1[[System.Single, mscorlib]]', ns: Unity.Behavior.GraphFramework, asm: Unity.Behavior.GraphFramework}
+      data:
+        ID:
+          m_Value0: 5548755414243163047
+          m_Value1: 13171907062874598717
+        Name: Lose Player Distance
+        IsExposed: 1
+        m_IsShared: 1
+        m_Value: 12
 --- !u!114 &2910507154269342502
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -57,7 +79,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c02bb70996b49eba31d0c206e28da24, type: 3}
   m_Name: Slime Settings
   m_EditorClassIdentifier: 
-  VersionTimestamp: 638796174792589471
+  VersionTimestamp: 638796240284855367
   AssetID:
     m_Value0: 11818701840667020760
     m_Value1: 14064801335245664393
@@ -65,11 +87,17 @@ MonoBehaviour:
     m_Variables:
     - rid: 152965322557358444
     - rid: 152965322557358445
+    - rid: 152965324031656444
+    - rid: 152965324031656468
   m_SharedBlackboardVariableGuids:
   - m_Value0: 18049042902216214517
     m_Value1: 8143088988509485350
   - m_Value0: 11819220328131130025
     m_Value1: 9502028503101924639
+  - m_Value0: 4511093286412840932
+    m_Value1: 2917960547411268262
+  - m_Value0: 5548755414243163047
+    m_Value1: 13171907062874598717
   references:
     version: 2
     RefIds:
@@ -79,7 +107,7 @@ MonoBehaviour:
         GUID:
           m_Value0: 18049042902216214517
           m_Value1: 8143088988509485350
-        Name: Min Wait Duration
+        Name: Wandering Min Wait Duration
         m_Value: 1
     - rid: 152965322557358445
       type: {class: 'BlackboardVariable`1[[System.Single, mscorlib]]', ns: Unity.Behavior, asm: Unity.Behavior}
@@ -87,5 +115,21 @@ MonoBehaviour:
         GUID:
           m_Value0: 11819220328131130025
           m_Value1: 9502028503101924639
-        Name: Max Wait Duration
+        Name: Wandering Max Wait Duration
         m_Value: 3
+    - rid: 152965324031656444
+      type: {class: 'BlackboardVariable`1[[System.Single, mscorlib]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 4511093286412840932
+          m_Value1: 2917960547411268262
+        Name: Detect Player Distance
+        m_Value: 10
+    - rid: 152965324031656468
+      type: {class: 'BlackboardVariable`1[[System.Single, mscorlib]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 5548755414243163047
+          m_Value1: 13171907062874598717
+        Name: Lose Player Distance
+        m_Value: 12
