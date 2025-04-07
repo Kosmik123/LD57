@@ -5,9 +5,12 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public event System.Action OnDashed;
+    public event System.Action OnAttack;
 
-    [SerializeField]
+    [Foldout("Rotation"), SerializeField]
     private LookAtCursor lookAtCursor;
+    [Foldout("Rotation"), SerializeField]
+    private float defaultRotationSpeed = 500f;    
 
     [Foldout("Movement")]
     [SerializeField]
@@ -58,9 +61,17 @@ public class PlayerController : MonoBehaviour
     [ShowNonSerializedField]
     private bool isDashing;
     public bool IsDashing => isDashing;
-
     [ShowNonSerializedField]
     private Vector3 dashDirection;
+
+    [Foldout("Attack"), SerializeField]
+    private float attackDuration;
+    [Foldout("Attack"), SerializeField, ReadOnly]
+    private bool isAttacking;
+    [Foldout("Attack"), SerializeField]
+    private float rotationSpeedWhileAttacking;
+    [Foldout("Attack"), SerializeField]
+    private GameObject[] damagingObjects;
 
     [SerializeField]
     private float fallingDownGravityModifier = 3f;
@@ -81,6 +92,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnEnable()
     {
+        lookAtCursor.RotationSpeed = defaultRotationSpeed;
         ResetJump();
     }
 
@@ -92,6 +104,8 @@ public class PlayerController : MonoBehaviour
         UpdateMovement();
         UpdateJump();
         UpdateDash();
+
+        UpdateAttack();
     }
 
     private void UpdateInput()
@@ -186,6 +200,34 @@ public class PlayerController : MonoBehaviour
     {
         isDashing = false;  
         lookAtCursor.enabled = true;
+    }
+
+    private void UpdateAttack()
+    {
+        if (isDashing || isAttacking)
+            return;
+
+        if (Input.GetButtonDown("Fire1"))
+        {
+            foreach (var damagingObject in damagingObjects)
+            {
+                damagingObject.SetActive(true);
+            }
+            isAttacking = true;
+            lookAtCursor.RotationSpeed = rotationSpeedWhileAttacking;
+            OnAttack?.Invoke();
+            Invoke(nameof(StopAttack), attackDuration);
+        }
+    }
+
+    private void StopAttack()
+    {
+        foreach (var damagingObject in damagingObjects)
+        {
+            damagingObject.SetActive(false);
+        }
+        lookAtCursor.RotationSpeed = defaultRotationSpeed;
+        isAttacking = false;
     }
 
     public bool CanJump() => !isDashing && !hasJumped && (isGrounded || coyoteTimeCounter > 0);

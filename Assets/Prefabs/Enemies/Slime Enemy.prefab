@@ -168,6 +168,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Slime Enemy
       objectReference: {fileID: 0}
+    - target: {fileID: 3874161206682560556, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: maxHealth
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 3915213048735987581, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
       propertyPath: activeBehavior
       value: 

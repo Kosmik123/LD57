@@ -5,6 +5,11 @@ public class LookAtCursor : MonoBehaviour
 {
     [SerializeField]
     private float rotationSpeed = 5f;
+    public float RotationSpeed
+    {
+        get => rotationSpeed;
+        set => rotationSpeed = value;
+    }
 
     private Camera viewCamera;
 

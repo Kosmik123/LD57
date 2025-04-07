@@ -20,7 +20,7 @@ MonoBehaviour:
   - rid: 152965322557358443
   - rid: 152965324031656443
   - rid: 152965324031656467
-  m_VersionTimestamp: 638796240284855367
+  m_VersionTimestamp: 638796346735861907
   m_CommandBuffer:
     m_Commands: []
   m_RuntimeBlackboardAsset: {fileID: 2910507154269342502}
@@ -79,7 +79,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c02bb70996b49eba31d0c206e28da24, type: 3}
   m_Name: Slime Settings
   m_EditorClassIdentifier: 
-  VersionTimestamp: 638796240284855367
+  VersionTimestamp: 638796346735861907
   AssetID:
     m_Value0: 11818701840667020760
     m_Value1: 14064801335245664393
