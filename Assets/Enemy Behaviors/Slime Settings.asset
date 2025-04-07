@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2dd922ae02c94c87a66e46a10a7319b9, type: 3}
+  m_Name: Slime Settings
+  m_EditorClassIdentifier: 
+  AssetID:
+    m_Value0: 11818701840667020760
+    m_Value1: 14064801335245664393
+  m_Variables:
+  - rid: 152965322557358442
+  - rid: 152965322557358443
+  m_VersionTimestamp: 638796174792589471
+  m_CommandBuffer:
+    m_Commands: []
+  m_RuntimeBlackboardAsset: {fileID: 2910507154269342502}
+  references:
+    version: 2
+    RefIds:
+    - rid: 152965322557358442
+      type: {class: 'TypedVariableModel`1[[System.Single, mscorlib]]', ns: Unity.Behavior.GraphFramework, asm: Unity.Behavior.GraphFramework}
+      data:
+        ID:
+          m_Value0: 18049042902216214517
+          m_Value1: 8143088988509485350
+        Name: Min Wait Duration
+        IsExposed: 1
+        m_IsShared: 1
+        m_Value: 1
+    - rid: 152965322557358443
+      type: {class: 'TypedVariableModel`1[[System.Single, mscorlib]]', ns: Unity.Behavior.GraphFramework, asm: Unity.Behavior.GraphFramework}
+      data:
+        ID:
+          m_Value0: 11819220328131130025
+          m_Value1: 9502028503101924639
+        Name: Max Wait Duration
+        IsExposed: 1
+        m_IsShared: 1
+        m_Value: 3
+--- !u!114 &2910507154269342502
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c02bb70996b49eba31d0c206e28da24, type: 3}
+  m_Name: Slime Settings
+  m_EditorClassIdentifier: 
+  VersionTimestamp: 638796174792589471
+  AssetID:
+    m_Value0: 11818701840667020760
+    m_Value1: 14064801335245664393
+  m_Blackboard:
+    m_Variables:
+    - rid: 152965322557358444
+    - rid: 152965322557358445
+  m_SharedBlackboardVariableGuids:
+  - m_Value0: 18049042902216214517
+    m_Value1: 8143088988509485350
+  - m_Value0: 11819220328131130025
+    m_Value1: 9502028503101924639
+  references:
+    version: 2
+    RefIds:
+    - rid: 152965322557358444
+      type: {class: 'BlackboardVariable`1[[System.Single, mscorlib]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 18049042902216214517
+          m_Value1: 8143088988509485350
+        Name: Min Wait Duration
+        m_Value: 1
+    - rid: 152965322557358445
+      type: {class: 'BlackboardVariable`1[[System.Single, mscorlib]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 11819220328131130025
+          m_Value1: 9502028503101924639
+        Name: Max Wait Duration
+        m_Value: 3
