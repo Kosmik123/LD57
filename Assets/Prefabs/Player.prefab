@@ -112,6 +112,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b74284685a130b243aa96d0b85a0687c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  lookAtCursor: {fileID: 1884842867317269501}
   forwardProvider: {fileID: 0}
   moveSpeed: 8
   sidewaysSpeedModified: 0.9

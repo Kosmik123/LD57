@@ -6,6 +6,9 @@ public class PlayerController : MonoBehaviour
 {
     public event System.Action OnDashed;
 
+    [SerializeField]
+    private LookAtCursor lookAtCursor;
+
     [Foldout("Movement")]
     [SerializeField]
     private Transform forwardProvider;
@@ -162,12 +165,14 @@ public class PlayerController : MonoBehaviour
     private void StartDash()
     {
         isDashing = true;
+        lookAtCursor.enabled = false;
         float dashDuration = dashDistance / dashSpeed;
         var  velocity = rb.linearVelocity;
         velocity.y = 0;
         if (velocity.sqrMagnitude > 0.001f)
         {
             dashDirection = velocity.normalized;
+            transform.forward = dashDirection;
         }
         else
         {
@@ -180,6 +185,7 @@ public class PlayerController : MonoBehaviour
     private void EndDash()
     {
         isDashing = false;  
+        lookAtCursor.enabled = true;
     }
 
     public bool CanJump() => !isDashing && !hasJumped && (isGrounded || coyoteTimeCounter > 0);
