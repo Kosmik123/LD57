@@ -691,6 +691,41 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1664926228}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1085514965 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1423537355040572529, guid: 68491b019838ca44a8e58a31bd20b1ed, type: 3}
+  m_PrefabInstance: {fileID: 2825073208463957668}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1085514968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1085514965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0284995e0f4be348a221697974eb075, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  flatTargetting: 1
+  _rigidbody: {fileID: 2052946883}
+  moveSpeed: 4
+  rotationSpeed: 120
+  stopMovementOnDisable: 0
+--- !u!114 &1085514969
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1085514965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af6baae1bd56c3e4e832cee64697874e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerTag: Player
 --- !u!4 &1171285879 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 638063804369704979, guid: 90dccedcbc31b2a48a6d75846eaebfc0, type: 3}
@@ -837,6 +872,37 @@ Transform:
   - {fileID: 832575519}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1993139630 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5414543368212545228, guid: 68491b019838ca44a8e58a31bd20b1ed, type: 3}
+  m_PrefabInstance: {fileID: 2825073208463957668}
+  m_PrefabAsset: {fileID: 0}
+--- !u!135 &1993139633
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1993139630}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0.4, z: 0}
+--- !u!54 &2052946883 stripped
+Rigidbody:
+  m_CorrespondingSourceObject: {fileID: 3765344573531239340, guid: 68491b019838ca44a8e58a31bd20b1ed, type: 3}
+  m_PrefabInstance: {fileID: 2825073208463957668}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2825073208463957668
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -885,6 +951,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1423537355040572529, guid: 68491b019838ca44a8e58a31bd20b1ed, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1893746111147867348, guid: 68491b019838ca44a8e58a31bd20b1ed, type: 3}
+      propertyPath: attackCondition
+      value: -2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1893746111147867348, guid: 68491b019838ca44a8e58a31bd20b1ed, type: 3}
+      propertyPath: 'managedReferences[-2]'
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1893746111147867348, guid: 68491b019838ca44a8e58a31bd20b1ed, type: 3}
       propertyPath: 'managedReferences[152965310774771769]'
       value: Assembly-CSharp Enemies.Conditions.All
@@ -912,7 +990,7 @@ PrefabInstance:
     - target: {fileID: 1893746111147867348, guid: 68491b019838ca44a8e58a31bd20b1ed, type: 3}
       propertyPath: managedReferences[152965310774771774].activator
       value: 
-      objectReference: {fileID: 1171285879}
+      objectReference: {fileID: 0}
     - target: {fileID: 1893746111147867348, guid: 68491b019838ca44a8e58a31bd20b1ed, type: 3}
       propertyPath: managedReferences[152965310774771775].activator
       value: 
@@ -930,17 +1008,58 @@ PrefabInstance:
       value: Enemy
       objectReference: {fileID: 0}
     - target: {fileID: 5193240633571875923, guid: 68491b019838ca44a8e58a31bd20b1ed, type: 3}
+      propertyPath: movement
+      value: 
+      objectReference: {fileID: 1085514968}
+    - target: {fileID: 5193240633571875923, guid: 68491b019838ca44a8e58a31bd20b1ed, type: 3}
+      propertyPath: targetProvider
+      value: 
+      objectReference: {fileID: 1085514969}
+    - target: {fileID: 5193240633571875923, guid: 68491b019838ca44a8e58a31bd20b1ed, type: 3}
+      propertyPath: retargettingCondition
+      value: 152965322557358136
+      objectReference: {fileID: 0}
+    - target: {fileID: 5193240633571875923, guid: 68491b019838ca44a8e58a31bd20b1ed, type: 3}
+      propertyPath: 'managedReferences[152965322557358136]'
+      value: Assembly-CSharp Enemies.Movement.TimeDelayRetargettingStrategy
+      objectReference: {fileID: 0}
+    - target: {fileID: 5193240633571875923, guid: 68491b019838ca44a8e58a31bd20b1ed, type: 3}
+      propertyPath: managedReferences[152965322557358136].delay.max
+      value: 0.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 5193240633571875923, guid: 68491b019838ca44a8e58a31bd20b1ed, type: 3}
+      propertyPath: managedReferences[152965322557358136].delay.min
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5364257877671760592, guid: 68491b019838ca44a8e58a31bd20b1ed, type: 3}
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7830786679423331988, guid: 68491b019838ca44a8e58a31bd20b1ed, type: 3}
-      propertyPath: m_Enabled
-      value: 0
+      propertyPath: managedReferences[152965321553870906].conditions.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7830786679423331988, guid: 68491b019838ca44a8e58a31bd20b1ed, type: 3}
+      propertyPath: managedReferences[152965321553870907].delayAfterReachingTarget.max
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7830786679423331988, guid: 68491b019838ca44a8e58a31bd20b1ed, type: 3}
+      propertyPath: managedReferences[152965321553870907].delayAfterReachingTarget.min
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1423537355040572529, guid: 68491b019838ca44a8e58a31bd20b1ed, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1085514969}
+    - targetCorrespondingSourceObject: {fileID: 1423537355040572529, guid: 68491b019838ca44a8e58a31bd20b1ed, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1085514968}
+    - targetCorrespondingSourceObject: {fileID: 5414543368212545228, guid: 68491b019838ca44a8e58a31bd20b1ed, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1993139633}
   m_SourcePrefab: {fileID: 100100000, guid: 68491b019838ca44a8e58a31bd20b1ed, type: 3}
 --- !u!1001 &3931319166981160592
 PrefabInstance:

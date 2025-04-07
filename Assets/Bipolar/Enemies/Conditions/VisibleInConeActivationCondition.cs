@@ -27,6 +27,10 @@ namespace Enemies.Conditions
 
         public bool IsInView()
         {
+            var target = this.target;
+            if (target == null)
+                target = Player.Instance.transform;
+
             Vector3 forward = Enemy.transform.forward;
             Vector3 direction = target.position - Enemy.transform.position;
             if (Vector3.Angle(forward, direction) > viewAngle)

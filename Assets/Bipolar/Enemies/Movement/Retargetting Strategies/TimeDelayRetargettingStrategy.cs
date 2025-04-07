@@ -1,37 +1,29 @@
 ﻿using Bipolar;
+using System.Collections;
 using UnityEngine;
 
 namespace Enemies.Movement
 {
-    [AddComponentMenu(Paths.MovementRetargetting + "Time Delay Retargetting Strategy")]
+    [System.Serializable]
     public class TimeDelayRetargettingStrategy : EnemyRetargettingStrategy
     {
         [SerializeField]
         private RandomFloat delay;
 
-        private Timer timer;
-
-        private void Awake()
+        private MonoBehaviour coroutineRunner;
+        protected override void OnInit()
         {
-            //timer = new Timer(nul, onElapsed: Timer_OnElapsed);
+            coroutineRunner = Enemy.GetComponentInChildren<MonoBehaviour>();
+            coroutineRunner.StartCoroutine(WaitForRetargetting());
         }
 
-        private void OnEnable()
+        private IEnumerator WaitForRetargetting()
         {
-            timer.Duration = delay;
-            timer.Restart();
-        }
-
-        private void Timer_OnElapsed()
-        {
-            timer.Duration = delay;
-            timer.Restart();
-            RequestRetargetting();
-        }
-
-        private void OnDisable()
-        {
-            timer.Stop();
+            while (coroutineRunner)
+            {
+                yield return new WaitForSeconds(delay);
+                RequestRetargetting();
+            }
         }
     }
 }

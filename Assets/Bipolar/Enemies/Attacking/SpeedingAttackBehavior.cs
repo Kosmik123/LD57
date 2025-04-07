@@ -18,7 +18,7 @@ namespace Enemies.Attacking
         [SerializeField]
         private float runningDuration;
 
-        private Timer timer;
+        private float runningStopTime;
 
         private bool isRunning;
         private Vector3 direction;
@@ -30,8 +30,6 @@ namespace Enemies.Attacking
             direction = (player.position - _rigidbody.position).normalized;
             direction.y = 0;
             isRunning = true;
-            timer = new Timer(this, duration: runningDuration, onElapsed: StopRunning);
-            timer.Start();
         }
 
         private void Update()
@@ -42,6 +40,11 @@ namespace Enemies.Attacking
                 Vector3 velocity = direction * speed;
                 velocity.y = y;
                 _rigidbody.linearVelocity = velocity;
+            
+                if(Time.time > runningStopTime)
+                {
+                    StopRunning();
+                }
             }
         }
 

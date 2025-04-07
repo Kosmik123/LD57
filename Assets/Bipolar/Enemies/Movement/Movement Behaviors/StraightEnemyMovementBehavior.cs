@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using NaughtyAttributes;
+using UnityEngine;
 
 namespace Enemies.Movement
 {
@@ -18,6 +19,7 @@ namespace Enemies.Movement
         [SerializeField]
         private bool stopMovementOnDisable;
 
+        [ShowNonSerializedField]
         private bool targetReached;
 
         private void Reset()

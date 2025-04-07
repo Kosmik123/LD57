@@ -1,3 +1,4 @@
+using Enemies.Movement;
 using NaughtyAttributes;
 using UnityEngine;
 
@@ -9,9 +10,9 @@ namespace Enemies
 
         [Header("Activation")]
         [SerializeField]
-        private Behaviour inactiveBehavior;
+        private GameObject inactiveBehavior;
         [SerializeField]
-        private Behaviour activeBehavior;
+        private GameObject activeBehavior;
 
         [SerializeReference, SubclassSelector]
         private Condition activationCondition;
@@ -39,8 +40,8 @@ namespace Enemies
 
         private void Awake()
         {
-            activationCondition?.Init(this);
-            attackCondition?.Init(this);
+            activationCondition?.Init(gameObject);
+            attackCondition?.Init(gameObject);
 
             Deactivate();
         }
@@ -48,7 +49,7 @@ namespace Enemies
         private void Update()
         {
             float dt = Time.deltaTime;
-            bool shouldBeActive = activationCondition?.Check() ?? false;
+            bool shouldBeActive = activationCondition.IsFulfilled();
             if (shouldBeActive)
             {
                 deactivationTimer = deactivationDelay;
@@ -67,7 +68,7 @@ namespace Enemies
             attackTimer = Mathf.Max(attackTimer, 0);
             if (isActive && CanAttack)
             {
-                bool shouldAttack = attackCondition?.Check() ?? false;
+                bool shouldAttack = attackCondition.IsFulfilled();
                 if (shouldAttack)
                 {
                     Attack();
@@ -94,9 +95,9 @@ namespace Enemies
             var behaviorToDisable = isActive ? inactiveBehavior : activeBehavior;
 
             if (behaviorToDisable)
-                behaviorToDisable.enabled = false;
+                behaviorToDisable.SetActive(false);
             if (behaviorToEnable)
-                behaviorToEnable.enabled = true;
+                behaviorToEnable.SetActive(true);
 
             if (oldActive != isActive)
                 OnActiveChanged?.Invoke(isActive);
@@ -104,8 +105,8 @@ namespace Enemies
 
         private void OnValidate()
         {
-            activationCondition?.Init(this);
-            attackCondition?.Init(this);
+            activationCondition?.Init(gameObject);
+            attackCondition?.Init(gameObject);
         }
 
         private void OnDrawGizmosSelected()
@@ -118,12 +119,16 @@ namespace Enemies
     [System.Serializable]
     public abstract class Condition
     {
-        public EnemyController Enemy { get; private set; }
+        public GameObject Enemy { get; private set; }
 
-        internal void Init(EnemyController enemy) => Enemy = enemy;
+        internal void Init(GameObject enemy)
+        {
+            Enemy = enemy;
+            OnInit();
+        }
 
         public abstract bool Check();
-
+        protected virtual void OnInit() { }
         internal protected virtual void DrawGizmos() { }
     }
 

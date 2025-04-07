@@ -6,7 +6,7 @@ namespace Enemies.Movement
     [AddComponentMenu(Paths.Root + "Enemy Movement")]
     public class EnemyMovement : MonoBehaviour
     {
-        [SerializeField, Required]
+        [SerializeReference, SubclassSelector]
         private Condition retargettingCondition;
         [SerializeField, Required]
         private EnemyTargetProvider targetProvider;
@@ -15,6 +15,7 @@ namespace Enemies.Movement
 
         private void Awake()
         {
+            retargettingCondition?.Init(gameObject);
             if (!enabled)
                 OnDisable();
         }
@@ -29,7 +30,7 @@ namespace Enemies.Movement
 
         protected virtual void Update()
         {
-            if (retargettingCondition.Check())
+            if (retargettingCondition.IsFulfilled())
             {
                 RetargetEnemy();
             }
@@ -104,6 +105,17 @@ namespace Enemies.Movement
         protected void RequestRetargetting()
         {
             shouldRetarget = true;
+        }
+    }
+
+    public static class ConditionExtensions
+    {
+        public static bool IsFulfilled(this Condition condition)
+        {
+            if (condition == null)
+                return false;
+
+            return condition.Check();
         }
     }
 }

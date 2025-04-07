@@ -1,41 +1,35 @@
 ﻿using Bipolar;
 using NaughtyAttributes;
+using System;
+using System.Collections;
 using UnityEngine;
 
 namespace Enemies.Movement
 {
-    [AddComponentMenu(Paths.MovementRetargetting + "On Target Reached Retargetting Strategy")]
+    [System.Serializable]
     public class OnTargetReachedRetargettingStrategy : EnemyRetargettingStrategy
     {
         [SerializeField, Required]
         private EnemyMovementBehavior enemyMovement;
 
         [SerializeField]
-        private RandomFloat delay;
-        private Timer timer;
+        private RandomFloat delayAfterReachingTarget;
 
-        private void OnEnable()
+        protected override void OnInit()
         {
-            //timer = new Timer(this);
+            enemyMovement.OnTargetReached -= EnemyMovement_OnTargetReached;
             enemyMovement.OnTargetReached += EnemyMovement_OnTargetReached;
         }
 
         private void EnemyMovement_OnTargetReached()
         {
-            timer.Duration = delay;
-            timer.Restart();
-            timer.OnElapsed += Timer_OnElapsed;
+            enemyMovement.StartCoroutine(WaitForRetargetting());
         }
 
-        private void Timer_OnElapsed()
+        private IEnumerator WaitForRetargetting()
         {
-            timer.OnElapsed -= Timer_OnElapsed;
+            yield return new WaitForSeconds(delayAfterReachingTarget);
             RequestRetargetting();
-        }
-
-        private void OnDisable()
-        {
-            enemyMovement.OnTargetReached -= EnemyMovement_OnTargetReached;
         }
     }
 }

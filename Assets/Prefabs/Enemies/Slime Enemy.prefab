@@ -12,6 +12,70 @@ PrefabInstance:
       propertyPath: m_Name
       value: Slime Enemy
       objectReference: {fileID: 0}
+    - target: {fileID: 3915213048735987581, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: attackCondition
+      value: 152965310774771775
+      objectReference: {fileID: 0}
+    - target: {fileID: 3915213048735987581, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: activationCondition
+      value: 152965310774771774
+      objectReference: {fileID: 0}
+    - target: {fileID: 3915213048735987581, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: 'managedReferences[152965310774771773]'
+      value: Assembly-CSharp Enemies.Conditions.VisibleInConeActivationCondition
+      objectReference: {fileID: 0}
+    - target: {fileID: 3915213048735987581, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: 'managedReferences[152965310774771774]'
+      value: Assembly-CSharp Enemies.Conditions.DistanceActivationCondition
+      objectReference: {fileID: 0}
+    - target: {fileID: 3915213048735987581, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: 'managedReferences[152965310774771775]'
+      value: Assembly-CSharp Enemies.Conditions.DistanceActivationCondition
+      objectReference: {fileID: 0}
+    - target: {fileID: 3915213048735987581, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: managedReferences[152965310774771773].target
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3915213048735987581, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: managedReferences[152965310774771774].deadzone
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3915213048735987581, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: managedReferences[152965310774771774].distance
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 3915213048735987581, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: managedReferences[152965310774771774].isNearby
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3915213048735987581, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: managedReferences[152965310774771775].deadzone
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3915213048735987581, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: managedReferences[152965310774771775].distance
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3915213048735987581, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: managedReferences[152965310774771775].isNearby
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3915213048735987581, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: managedReferences[152965310774771773].viewAngle
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 3915213048735987581, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: managedReferences[152965310774771774].activator
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3915213048735987581, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: managedReferences[152965310774771775].activator
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3915213048735987581, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: managedReferences[152965310774771773].viewDistance
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 4534506419479588735, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
       propertyPath: m_LocalPosition.x
       value: 15.03
@@ -52,6 +116,62 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4665407560478385469, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: movement
+      value: 
+      objectReference: {fileID: 6531880621987963002}
+    - target: {fileID: 4665407560478385469, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: targetProvider
+      value: 
+      objectReference: {fileID: 622221557678573874}
+    - target: {fileID: 4665407560478385469, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: retargettingCondition
+      value: 152965321553870906
+      objectReference: {fileID: 0}
+    - target: {fileID: 4665407560478385469, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: 'managedReferences[152965321553870906]'
+      value: Assembly-CSharp Enemies.Conditions.Any
+      objectReference: {fileID: 0}
+    - target: {fileID: 4665407560478385469, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: 'managedReferences[152965321553870907]'
+      value: Assembly-CSharp Enemies.Movement.OnTargetReachedRetargettingStrategy
+      objectReference: {fileID: 0}
+    - target: {fileID: 4665407560478385469, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: 'managedReferences[152965321553870908]'
+      value: Assembly-CSharp Enemies.Movement.TimeDelayRetargettingStrategy
+      objectReference: {fileID: 0}
+    - target: {fileID: 4665407560478385469, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: managedReferences[152965321553870907].delay.max
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4665407560478385469, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: managedReferences[152965321553870907].delay.min
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4665407560478385469, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: managedReferences[152965321553870908].delay.max
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4665407560478385469, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: managedReferences[152965321553870908].delay.min
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4665407560478385469, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: managedReferences[152965321553870907].enemyMovement
+      value: 
+      objectReference: {fileID: 6531880621987963002}
+    - target: {fileID: 4665407560478385469, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: managedReferences[152965321553870906].conditions.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4665407560478385469, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: 'managedReferences[152965321553870906].conditions.Array.data[0]'
+      value: 152965321553870907
+      objectReference: {fileID: 0}
+    - target: {fileID: 4665407560478385469, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      propertyPath: 'managedReferences[152965321553870906].conditions.Array.data[1]'
+      value: 152965321553870908
+      objectReference: {fileID: 0}
     - target: {fileID: 9056807143980745218, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -62,11 +182,77 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4534506419479588735, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5416967900979510152}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 500259182697060240, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 622221557678573874}
+    - targetCorrespondingSourceObject: {fileID: 500259182697060240, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1156246136573506546}
+    - targetCorrespondingSourceObject: {fileID: 500259182697060240, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6531880621987963002}
   m_SourcePrefab: {fileID: 100100000, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
 --- !u!4 &1368984454081553622 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4534506419479588735, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+  m_PrefabInstance: {fileID: 3175690348254923689}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &3090338612807867449 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 500259182697060240, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
+  m_PrefabInstance: {fileID: 3175690348254923689}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &622221557678573874
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3090338612807867449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b36d5c525f0d8b47acece885e1f01a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  validatedTargetProvider: {fileID: 1156246136573506546}
+  agentType: 0
+  detectionRadius: 10
+--- !u!114 &1156246136573506546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3090338612807867449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44edbcd89b938c04f80a9f2e68050df1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  randomTargetRadius:
+    min: 6
+    max: 10
+--- !u!114 &6531880621987963002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3090338612807867449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0284995e0f4be348a221697974eb075, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  flatTargetting: 1
+  _rigidbody: {fileID: 3765344573531239340}
+  moveSpeed: 4
+  rotationSpeed: 120
+  stopMovementOnDisable: 0
+--- !u!54 &3765344573531239340 stripped
+Rigidbody:
+  m_CorrespondingSourceObject: {fileID: 1752851862867490821, guid: 147225e20fed38944bbc8cdd36c74d4f, type: 3}
   m_PrefabInstance: {fileID: 3175690348254923689}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &5414045836580279950

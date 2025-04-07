@@ -44,9 +44,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b9330da13046b945a38076b72ab186c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  retargetingStrategy: {fileID: 0}
+  retargettingCondition:
+    rid: -2
   targetProvider: {fileID: 0}
   movement: {fileID: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!1 &2061768501279170398
 GameObject:
   m_ObjectHideFlags: 0
@@ -107,7 +113,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!114 &3915213048735987581
 MonoBehaviour:
@@ -121,16 +127,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e31f9892346d3564f8bf0f8943550b89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inactiveBehavior: {fileID: 4665407560478385469}
-  activeBehavior: {fileID: 7205840065584568314}
-  activationConditions: []
+  inactiveBehavior: {fileID: 500259182697060240}
+  activeBehavior: {fileID: 4599083577075716056}
+  activationCondition:
+    rid: -2
   deactivationDelay: 4
   deactivationTimer: 0
   isActive: 0
-  attackConditions: []
+  attackCondition:
+    rid: -2
   attackDelay: 0
   attackTimer: 0
   attackBehavior: {fileID: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!1 &4599083577075716056
 GameObject:
   m_ObjectHideFlags: 0
@@ -175,6 +188,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b9330da13046b945a38076b72ab186c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  retargetingStrategy: {fileID: 0}
+  retargettingCondition:
+    rid: -2
   targetProvider: {fileID: 0}
   movement: {fileID: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }

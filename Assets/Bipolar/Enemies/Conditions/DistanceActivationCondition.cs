@@ -1,5 +1,4 @@
 ﻿using NaughtyAttributes;
-using UnityEditor;
 using UnityEngine;
 
 namespace Enemies.Conditions
@@ -19,6 +18,10 @@ namespace Enemies.Conditions
 
         public override bool Check()
         {
+            var activator = this.activator;
+            if (activator == null)
+                activator = Player.Instance.transform;
+
             float squareDistance = (Enemy.transform.position - activator.position).sqrMagnitude;
             if (isNearby == false && squareDistance < distance * distance)
             {
@@ -48,9 +51,9 @@ namespace Enemies.Conditions
 
         private void GizmosDrawDistanceSphere(bool nearby)
         {
-            Handles.color = nearby ? Color.red : Color.cyan;
+            UnityEditor.Handles.color = nearby ? Color.red : Color.cyan;
             float radius = nearby ? distance + deadzone : distance;
-            Handles.DrawWireArc(Enemy.transform.position, Vector3.up, Vector3.forward, 360, radius);
+            UnityEditor.Handles.DrawWireArc(Enemy.transform.position, Vector3.up, Vector3.forward, 360, radius);
         }
 #endif
     }

@@ -6,11 +6,17 @@ namespace Enemies.Conditions
     {
         [SerializeReference, SubclassSelector]
         protected Condition[] conditions;
-     
+
+        protected override void OnInit()
+        {
+            foreach (var condition in conditions)
+                condition?.Init(Enemy);
+        }
+
         protected internal override void DrawGizmos()
         {
             foreach (var condition in conditions)
-                condition.DrawGizmos();
+                condition?.DrawGizmos();
         }
     }
 
