@@ -4,8 +4,21 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour
 {
+    /// <summary>Dash rozpoczęty.</summary>
     public event System.Action OnDashed;
+    /// <summary>Dash zakończony (po dashDistance / dashSpeed sekund).</summary>
+    public event System.Action OnDashEnded;
     public event System.Action OnAttack;
+    /// <summary>Gracz wylądował (był w powietrzu, jest na ziemi). Używane przez GroundSlam.</summary>
+    public event System.Action OnLanded;
+
+    [SerializeField, Tooltip("Skok jako wolny ruch jest wyłączony. Włącza go dopiero skill GroundSlam (SkillSlots).")]
+    private bool jumpEnabled = false;
+    public bool JumpEnabled
+    {
+        get => jumpEnabled;
+        set => jumpEnabled = value;
+    }
 
     [Foldout("Rotation"), SerializeField]
     private LookAtCursor lookAtCursor;
@@ -58,6 +71,11 @@ public class PlayerController : MonoBehaviour
     private float dashSpeed;
     [Foldout("Dash"), SerializeField]
     private float dashDistance;
+    [Foldout("Dash"), SerializeField, Tooltip("Czas (s) po rozpoczęciu dasha, zanim można dashować ponownie.")]
+    private float dashCooldown = 0.8f;
+    private float dashCooldownRemaining;
+    private float currentDashSpeed;
+    public float DashCooldownRemaining => Mathf.Max(0f, dashCooldownRemaining);
     [ShowNonSerializedField]
     private bool isDashing;
     public bool IsDashing => isDashing;
@@ -76,6 +94,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private float fallingDownGravityModifier = 3f;
 
+    /// <summary>False dla klas dystansowych: Fire1 nadal wywołuje OnAttack i animację, ale nie włącza damagingObjects.</summary>
+    public bool MeleeHitboxes = true;
+
     private Rigidbody rb;
     
     private float horizontal, vertical;
@@ -84,6 +105,14 @@ public class PlayerController : MonoBehaviour
 
     private bool jumpRequested;
     private bool dashRequested;
+    private bool externalJumpRequested;
+
+    /// <summary>Wymusza skok (np. skill GroundSlam). Działa tylko gdy JumpEnabled.</summary>
+    public void RequestJump()
+    {
+        if (jumpEnabled)
+            externalJumpRequested = true;
+    }
 
     private void Awake()
     {
@@ -112,13 +141,19 @@ public class PlayerController : MonoBehaviour
     {
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
-        jumpRequested = Input.GetButtonDown("Jump");
+        // Skok tylko przez RequestJump() (skill GroundSlam z własnym cooldownem). Oś "Jump" nie jest czytana,
+        // inaczej spacja skakałaby z pominięciem cooldownu skilla.
+        jumpRequested = jumpEnabled && externalJumpRequested;
+        externalJumpRequested = false;
         dashRequested = Input.GetButtonDown("Dash");
     }
 
     private void CheckGrounded()
     {
+        bool wasGrounded = isGrounded;
         isGrounded = Physics.CheckSphere(groundPoint.position, groundCheckRadius, groundLayers);
+        if (isGrounded && !wasGrounded)
+            OnLanded?.Invoke();
     }
 
     private void UpdateMovement()
@@ -170,15 +205,44 @@ public class PlayerController : MonoBehaviour
 
     private void UpdateDash()
     {
-        if (!isDashing && isGrounded && dashRequested)
+        if (dashCooldownRemaining > 0f)
+            dashCooldownRemaining -= Time.deltaTime;
+
+        if (!isDashing && isGrounded && dashRequested && dashCooldownRemaining <= 0f)
         {
             StartDash();
         }
     }
 
+    /// <summary>
+    /// Wymuszony dash w zadanym kierunku (skill Charge). Nie zużywa cooldownu zwykłego dasha.
+    /// Podnosi OnDashed, więc DashInvulnerability daje nietykalność także w szarży (decyzja: szarża przez korytarz jest nietykalna).
+    /// Zwraca false, gdy gracz już dashuje albo jest w powietrzu.
+    /// </summary>
+    public bool ForceDash(Vector3 direction, float distance, float speed)
+    {
+        if (isDashing || !isGrounded || speed <= 0f || distance <= 0f)
+            return false;
+        direction.y = 0;
+        if (direction.sqrMagnitude < 0.0001f)
+            return false;
+
+        dashDirection = direction.normalized;
+        transform.forward = dashDirection;
+        currentDashSpeed = speed;
+        isDashing = true;
+        lookAtCursor.enabled = false;
+        CancelInvoke(nameof(EndDash));
+        Invoke(nameof(EndDash), distance / speed);
+        OnDashed?.Invoke();
+        return true;
+    }
+
     private void StartDash()
     {
         isDashing = true;
+        dashCooldownRemaining = dashCooldown;
+        currentDashSpeed = dashSpeed;
         lookAtCursor.enabled = false;
         float dashDuration = dashDistance / dashSpeed;
         var  velocity = rb.linearVelocity;
@@ -198,8 +262,9 @@ public class PlayerController : MonoBehaviour
 
     private void EndDash()
     {
-        isDashing = false;  
+        isDashing = false;
         lookAtCursor.enabled = true;
+        OnDashEnded?.Invoke();
     }
 
     private void UpdateAttack()
@@ -209,9 +274,12 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetButtonDown("Fire1"))
         {
-            foreach (var damagingObject in damagingObjects)
+            if (MeleeHitboxes)
             {
-                damagingObject.SetActive(true);
+                foreach (var damagingObject in damagingObjects)
+                {
+                    damagingObject.SetActive(true);
+                }
             }
             isAttacking = true;
             lookAtCursor.RotationSpeed = rotationSpeedWhileAttacking;
@@ -230,7 +298,7 @@ public class PlayerController : MonoBehaviour
         isAttacking = false;
     }
 
-    public bool CanJump() => !isDashing && !hasJumped && (isGrounded || coyoteTimeCounter > 0);
+    public bool CanJump() => jumpEnabled && !isDashing && !hasJumped && (isGrounded || coyoteTimeCounter > 0);
 
     public bool WantsToJump() => jumpRequested || inputBufferCounter > 0;
 
@@ -253,7 +321,7 @@ public class PlayerController : MonoBehaviour
 
         if (isDashing)
         {
-            rb.linearVelocity = dashDirection * dashSpeed;
+            rb.linearVelocity = dashDirection * currentDashSpeed;
         }
         else
         {

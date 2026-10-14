@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c4e79a44c0441e4aae9890f5cd353c9, type: 3}
+  m_Name: Warrior
+  m_EditorClassIdentifier: 
+  DisplayName: Wojownik
+  Description: "Walka wr\u0119cz mieczem, 50 HP. Skille: wir, szar\u017Ca, uderzenie
+    w ziemi\u0119, rzut toporem, krzyk bojowy."
+  Ranged: 0
+  AttackDamage: 1
+  AttackCooldown: 0.3
+  MoveSpeedMultiplier: 1
+  MaxHealth: 50
+  SkillPool:
+  - {fileID: 11400000, guid: 52c9b019f2410e74390074e0916d5eb7, type: 2}
+  - {fileID: 11400000, guid: aa513e5aaa66d10479c4cde1c1e4fb68, type: 2}
+  - {fileID: 11400000, guid: 4d64a4bc00941744ab17abfc41d36c3d, type: 2}
+  - {fileID: 11400000, guid: dccb8c94d345cff488036d263e329a72, type: 2}
+  - {fileID: 11400000, guid: 77f3f1d088d8409408aad63665f1b110, type: 2}
+  ModelPrefab: {fileID: 0}
+  Tint: {r: 1, g: 1, b: 1, a: 1}
+  HideSword: 0

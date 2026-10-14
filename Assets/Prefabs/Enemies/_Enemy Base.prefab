@@ -14,6 +14,12 @@ GameObject:
   - component: {fileID: 6969506650641145397}
   - component: {fileID: 3874161206682560556}
   - component: {fileID: 8102736378521329070}
+  - component: {fileID: 8019514501232411810}
+  - component: {fileID: 2782223819898038756}
+  - component: {fileID: 3967989248275425001}
+  - component: {fileID: 2712971553957290158}
+  - component: {fileID: 5702041508477759406}
+  - component: {fileID: 7185332413498162704}
   m_Layer: 0
   m_Name: _Enemy Base
   m_TagString: Enemy
@@ -33,7 +39,8 @@ Transform:
   m_LocalPosition: {x: 15.03, y: 0, z: 13.23}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 4871810112430005474}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &1752851862867490821
@@ -116,8 +123,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3091429c1869b95438e7de47d3f55905, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 5
-  currentHealth: 0
+  maxHealth: 6
+  currentHealth: 6
 --- !u!114 &8102736378521329070
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -130,3 +137,168 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d79366ed5289bb345b6e0a02c79aba8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  experienceReward: 4
+  isBoss: 0
+--- !u!114 &8019514501232411810
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2061768501279170398}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1183c69c3669301409ad327012bcf9f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  leap: 0
+  leapSeconds: 0.35
+  landRadius: 1.3
+  leapDamage: 10
+  leapLead: 0.25
+  windup: 0.6
+  activeTime: 0.2
+  cooldown: 1.2
+  range: 1.5
+  damagingObject: {fileID: 8148318298019976838}
+  autoAttack: 1
+  retreatAfterAttack: 0
+--- !u!114 &2782223819898038756
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2061768501279170398}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 503acfb62f0fb1b48a545eb2390513ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  destroyDelay: 0.5
+  deathEffect: {fileID: 2467560761747028350, guid: 4dd4e56c9a433f244b242f957515ea45, type: 3}
+--- !u!114 &3967989248275425001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2061768501279170398}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a3010f70741b694bb25cc0e6e4a1247, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  duration: 0.08
+  flashColor: {r: 1, g: 1, b: 1, a: 1}
+--- !u!114 &2712971553957290158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2061768501279170398}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87fc99535baec2149a2791c25752c8ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0.35, g: 0.8, b: 0.3, a: 1}
+  scale: {x: 1, y: 0.7, z: 1}
+  offset: {x: 0, y: 0.35, z: 0}
+--- !u!114 &5702041508477759406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2061768501279170398}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c111dd9633eca54fa78cd54b5fd9777, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  alertRadius: 8
+--- !u!114 &7185332413498162704
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2061768501279170398}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3bed5326b0aefa4faca3c39f2db121d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  resistance: 1
+--- !u!1 &8148318298019976838
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4871810112430005474}
+  - component: {fileID: 7523783339683011960}
+  - component: {fileID: 1322855256959552445}
+  m_Layer: 0
+  m_Name: Attack Hitbox
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &4871810112430005474
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8148318298019976838}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0.9}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4534506419479588735}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &7523783339683011960
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8148318298019976838}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.8
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1322855256959552445
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8148318298019976838}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35be4042e2378cb4cb8ef3979529bee8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damagedTags:
+  - Player
+  damage: 10
+  knockback: 0

@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc0a947ecc1820c41b7f32e6d00368a9, type: 3}
+  m_Name: Charge
+  m_EditorClassIdentifier: 
+  DisplayName: "Szar\u017Ca"
+  Icon: {fileID: 0}
+  Kind: 1
+  UsesSpaceSlot: 0
+  Tiers:
+  - TierName: Baza
+    Description: "Rzut 6 m do przodu, 5 obra\u017Ce\u0144, przebija wrog\xF3w. Nietykalny
+      w trakcie."
+    Cooldown: 4
+    Damage: 5
+    Range: 6
+    Duration: 0
+    Knockback: 0
+    Stun: 0
+    EffectPrefab: {fileID: 8022655828212252975, guid: 618fe423b5f3c4e44aed623796d798a7, type: 3}
+  - TierName: Ulepszenie I
+    Description: Dystans 8 m.
+    Cooldown: 4
+    Damage: 5
+    Range: 8
+    Duration: 0
+    Knockback: 0
+    Stun: 0
+    EffectPrefab: {fileID: 602978439587968077, guid: eeaac00fc3ce71744a2bbe33bc59838a, type: 3}
+  - TierName: Ulepszenie II
+    Description: "7 obra\u017Ce\u0144."
+    Cooldown: 4
+    Damage: 7
+    Range: 8
+    Duration: 0
+    Knockback: 0
+    Stun: 0
+    EffectPrefab: {fileID: 1120148194631205013, guid: 4ca3808feee868b4791f8f6a8e9ee5b6, type: 3}
+  - TierName: "Ewolucja: Ognista szar\u017Ca"
+    Description: "Zostawia \u015Blad ognia na 3 s (2 obra\u017Ce\u0144 na sekund\u0119)."
+    Cooldown: 4
+    Damage: 7
+    Range: 8
+    Duration: 3
+    Knockback: 0
+    Stun: 0
+    EffectPrefab: {fileID: 6475781033793459724, guid: 782e91579a9079248b4e7995dcafabf6, type: 3}

@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc0a947ecc1820c41b7f32e6d00368a9, type: 3}
+  m_Name: ChainLightning
+  m_EditorClassIdentifier: 
+  DisplayName: "\u0141a\u0144cuch b\u0142yskawic"
+  Icon: {fileID: 0}
+  Kind: 9
+  UsesSpaceSlot: 0
+  Tiers:
+  - TierName: Baza
+    Description: "B\u0142yskawica trafia najbli\u017Cszego wroga (8 m) i skacze na
+      3 kolejnych: 4 obra\u017Cenia, ka\u017Cdy skok s\u0142abszy o 1."
+    Cooldown: 5
+    Damage: 4
+    Range: 8
+    Duration: 0.15
+    Knockback: 0
+    Stun: 0
+    EffectPrefab: {fileID: 0}
+  - TierName: Ulepszenie I
+    Description: "4 skoki, 5 obra\u017Ce\u0144."
+    Cooldown: 5
+    Damage: 5
+    Range: 8
+    Duration: 0.15
+    Knockback: 0
+    Stun: 0
+    EffectPrefab: {fileID: 0}
+  - TierName: Ulepszenie II
+    Description: "5 skok\xF3w, 6 obra\u017Ce\u0144."
+    Cooldown: 5
+    Damage: 6
+    Range: 8
+    Duration: 0.15
+    Knockback: 0
+    Stun: 0
+    EffectPrefab: {fileID: 0}
+  - TierName: 'Ewolucja: Burza'
+    Description: "Ka\u017Cde trafienie og\u0142usza wroga na 0,5 s."
+    Cooldown: 5
+    Damage: 6
+    Range: 8
+    Duration: 0.15
+    Knockback: 0
+    Stun: 0.5
+    EffectPrefab: {fileID: 0}

@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc0a947ecc1820c41b7f32e6d00368a9, type: 3}
+  m_Name: ArcaneOrbs
+  m_EditorClassIdentifier: 
+  DisplayName: Magiczne kule
+  Icon: {fileID: 0}
+  Kind: 7
+  UsesSpaceSlot: 0
+  Tiers:
+  - TierName: Baza
+    Description: "3 kule kr\u0105\u017C\u0105 wok\xF3\u0142 ciebie przez 6 s i rani\u0105
+      wrog\xF3w (2 obra\u017Cenia)."
+    Cooldown: 12
+    Damage: 2
+    Range: 1.8
+    Duration: 6
+    Knockback: 0
+    Stun: 0
+    EffectPrefab: {fileID: 0}
+  - TierName: Ulepszenie I
+    Description: "4 kule, 3 obra\u017Cenia."
+    Cooldown: 12
+    Damage: 3
+    Range: 1.8
+    Duration: 6
+    Knockback: 0
+    Stun: 0
+    EffectPrefab: {fileID: 0}
+  - TierName: Ulepszenie II
+    Description: "5 kul, 4 obra\u017Cenia."
+    Cooldown: 12
+    Damage: 4
+    Range: 1.8
+    Duration: 6
+    Knockback: 0
+    Stun: 0
+    EffectPrefab: {fileID: 0}
+  - TierName: "Ewolucja: Stra\u017Cnicy"
+    Description: "Co sekund\u0119 jedna z kul strzela w najbli\u017Cszego wroga."
+    Cooldown: 12
+    Damage: 4
+    Range: 1.8
+    Duration: 6
+    Knockback: 0
+    Stun: 0
+    EffectPrefab: {fileID: 0}

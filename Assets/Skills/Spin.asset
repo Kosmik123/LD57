@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc0a947ecc1820c41b7f32e6d00368a9, type: 3}
+  m_Name: Spin
+  m_EditorClassIdentifier: 
+  DisplayName: Wirowanie
+  Icon: {fileID: 0}
+  Kind: 0
+  UsesSpaceSlot: 0
+  Tiers:
+  - TierName: Baza
+    Description: "Obr\xF3t z mieczem: 2 obra\u017Ce\u0144 co 0,25 s w promieniu 2,5
+      m przez 1 s."
+    Cooldown: 5
+    Damage: 2
+    Range: 2.5
+    Duration: 1
+    Knockback: 0
+    Stun: 0
+    EffectPrefab: {fileID: 2975471666505111139, guid: 7244712abe63b4849b0977778d277bad, type: 3}
+  - TierName: Ulepszenie I
+    Description: "Promie\u0144 3 m, 3 obra\u017Ce\u0144 na tick."
+    Cooldown: 5
+    Damage: 3
+    Range: 3
+    Duration: 1
+    Knockback: 0
+    Stun: 0
+    EffectPrefab: {fileID: 1375742702871983378, guid: 1d41453dd557abd47838abc69702dbbf, type: 3}
+  - TierName: Ulepszenie II
+    Description: "Promie\u0144 3,5 m, 4 obra\u017Ce\u0144 na tick."
+    Cooldown: 5
+    Damage: 4
+    Range: 3.5
+    Duration: 1
+    Knockback: 0
+    Stun: 0
+    EffectPrefab: {fileID: 7857019557073872013, guid: 50d048eeeda9ef84eaf98e2e69e13ab6, type: 3}
+  - TierName: 'Ewolucja: Tornado'
+    Description: "Wiruje 2 s i przyci\u0105ga wrog\xF3w do \u015Brodka."
+    Cooldown: 5
+    Damage: 4
+    Range: 3.5
+    Duration: 2
+    Knockback: 0
+    Stun: 0
+    EffectPrefab: {fileID: 2582670247091235394, guid: 507b38c0378690447b7b2b43814e549c, type: 3}

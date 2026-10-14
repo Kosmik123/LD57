@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c4e79a44c0441e4aae9890f5cd353c9, type: 3}
+  m_Name: Mage
+  m_EditorClassIdentifier: 
+  DisplayName: Mag
+  Description: "Atak z dystansu pociskami, 40 HP. Skille: kula ognia, lodowa nova,
+    magiczne kule, teleport (spacja), \u0142a\u0144cuch b\u0142yskawic."
+  Ranged: 1
+  AttackDamage: 2
+  AttackCooldown: 0.35
+  MoveSpeedMultiplier: 1.05
+  MaxHealth: 40
+  SkillPool:
+  - {fileID: 11400000, guid: f2b371abe96ed0c4da7a1e1acbc9d1e1, type: 2}
+  - {fileID: 11400000, guid: 1025729a7b07c9a478c1352c76e58ea3, type: 2}
+  - {fileID: 11400000, guid: 217d6251554e1c74eb466112b4bb6ebf, type: 2}
+  - {fileID: 11400000, guid: ce1601ee82dc4454abc8356e1b5724c0, type: 2}
+  - {fileID: 11400000, guid: f4e3a5525e4e2bd46b3bd1c4c7305c4c, type: 2}
+  ModelPrefab: {fileID: 1328023254706044480, guid: 257c304c754d3b247a51ef5bea7a90d0, type: 3}
+  Tint: {r: 0.55, g: 0.55, b: 1, a: 1}
+  HideSword: 1

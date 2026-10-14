@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc0a947ecc1820c41b7f32e6d00368a9, type: 3}
+  m_Name: FrostNova
+  m_EditorClassIdentifier: 
+  DisplayName: Lodowa nova
+  Icon: {fileID: 0}
+  Kind: 6
+  UsesSpaceSlot: 0
+  Tiers:
+  - TierName: Baza
+    Description: "Lodowy pier\u015Bcie\u0144 w promieniu 3 m: 3 obra\u017Cenia i
+      spowolnienie wrog\xF3w na 2 s."
+    Cooldown: 8
+    Damage: 3
+    Range: 3
+    Duration: 2
+    Knockback: 0
+    Stun: 0
+    EffectPrefab: {fileID: 0}
+  - TierName: Ulepszenie I
+    Description: "Promie\u0144 3,5 m, 4 obra\u017Cenia."
+    Cooldown: 8
+    Damage: 4
+    Range: 3.5
+    Duration: 2
+    Knockback: 0
+    Stun: 0
+    EffectPrefab: {fileID: 0}
+  - TierName: Ulepszenie II
+    Description: "Promie\u0144 4 m, 5 obra\u017Ce\u0144."
+    Cooldown: 8
+    Damage: 5
+    Range: 4
+    Duration: 2
+    Knockback: 0
+    Stun: 0
+    EffectPrefab: {fileID: 0}
+  - TierName: "Ewolucja: Zamr\xF3z"
+    Description: "Wrogowie w pier\u015Bcieniu s\u0105 dodatkowo unieruchomieni na
+      1,5 s."
+    Cooldown: 8
+    Damage: 5
+    Range: 4
+    Duration: 2
+    Knockback: 0
+    Stun: 1.5
+    EffectPrefab: {fileID: 0}

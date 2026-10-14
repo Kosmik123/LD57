@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc0a947ecc1820c41b7f32e6d00368a9, type: 3}
+  m_Name: Fireball
+  m_EditorClassIdentifier: 
+  DisplayName: Kula ognia
+  Icon: {fileID: 0}
+  Kind: 5
+  UsesSpaceSlot: 0
+  Tiers:
+  - TierName: Baza
+    Description: "Kula ognia leci prosto i wybucha: 6 obra\u017Ce\u0144 w promieniu
+      2 m."
+    Cooldown: 4
+    Damage: 6
+    Range: 2
+    Duration: 0
+    Knockback: 0
+    Stun: 0
+    EffectPrefab: {fileID: 0}
+  - TierName: Ulepszenie I
+    Description: "Wybuch zadaje 8 obra\u017Ce\u0144."
+    Cooldown: 4
+    Damage: 8
+    Range: 2
+    Duration: 0
+    Knockback: 0
+    Stun: 0
+    EffectPrefab: {fileID: 0}
+  - TierName: Ulepszenie II
+    Description: "Wybuch zadaje 10 obra\u017Ce\u0144."
+    Cooldown: 4
+    Damage: 10
+    Range: 2
+    Duration: 0
+    Knockback: 0
+    Stun: 0
+    EffectPrefab: {fileID: 0}
+  - TierName: "Ewolucja: Po\u017Coga"
+    Description: "Po wybuchu ogie\u0144 p\u0142onie jeszcze 1,5 s i trzykrotnie rani
+      wrog\xF3w w miejscu wybuchu."
+    Cooldown: 4
+    Damage: 10
+    Range: 2
+    Duration: 1.5
+    Knockback: 0
+    Stun: 0
+    EffectPrefab: {fileID: 0}
