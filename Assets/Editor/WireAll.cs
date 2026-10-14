@@ -38,6 +38,10 @@ public static class WireAll
         P9Wiring_Materials.Run();
         P9Wiring_PostFx.Run();
         P9Wiring_Mage.Run();
+        P10Wiring_Population.Run();
+        P12Wiring_SkillUi.Run();
+        P12Wiring_Mechanics.Run();
+        P12WiringBoss.Run(); // ostatni: P3/P1 przebudowują nogi bossa
         AssetDatabase.SaveAssets();
         Debug.Log("[WireAll] done");
     }

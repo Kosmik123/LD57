@@ -1,6 +1,6 @@
 using UnityEngine;
 
-/// <summary>Smuga miecza podczas ataku i iskry w miejscu trafienia. Komponent na graczu.</summary>
+/// <summary>Smuga miecza podczas ataku, voxelowy łuk cięcia i iskry z kostek w miejscu trafienia. Komponent na graczu.</summary>
 public class SwordTrail : MonoBehaviour
 {
     [SerializeField] private PlayerController player;
@@ -12,7 +12,7 @@ public class SwordTrail : MonoBehaviour
 
     private TrailRenderer trail;
     private TrailRenderer core;
-    private ParticleSystem sparks;
+    private VoxelTrailEmitter voxelTrail;
     private float emitUntil = -1f;
 
     /// <summary>Wspólny materiał URP Particles/Unlit w trybie Transparent (obsługuje kolor wierzchołków).</summary>
@@ -76,38 +76,8 @@ public class SwordTrail : MonoBehaviour
         core.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         core.emitting = false;
 
-        CreateSparks();
-    }
-
-    private void CreateSparks()
-    {
-        var go = new GameObject("Hit Sparks");
-        go.transform.SetParent(null);
-        sparks = go.AddComponent<ParticleSystem>();
-        sparks.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-        var main = sparks.main;
-        main.playOnAwake = false;
-        main.loop = false;
-        main.duration = 0.5f;
-        main.startLifetime = new ParticleSystem.MinMaxCurve(0.15f, 0.35f);
-        main.startSpeed = new ParticleSystem.MinMaxCurve(3f, 7f);
-        main.startSize = new ParticleSystem.MinMaxCurve(0.08f, 0.18f);
-        main.startColor = new ParticleSystem.MinMaxGradient(new Color(1f, 0.6f, 0.1f), new Color(1f, 0.85f, 0.4f));
-        main.gravityModifier = 1.5f;
-        main.simulationSpace = ParticleSystemSimulationSpace.World;
-        var emission = sparks.emission;
-        emission.enabled = false;
-        var shape = sparks.shape;
-        shape.shapeType = ParticleSystemShapeType.Sphere;
-        shape.radius = 0.1f;
-        var fade = sparks.colorOverLifetime;
-        fade.enabled = true;
-        var gr = new Gradient();
-        gr.SetKeys(new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
-                   new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(0f, 1f) });
-        fade.color = gr;
-        var psr = go.GetComponent<ParticleSystemRenderer>();
-        psr.sharedMaterial = trailMaterial;
+        voxelTrail = VoxelTrailEmitter.Attach(sword.gameObject, VoxelFxRecipes.Orange, 0.15f, 0.12f, 0.3f);
+        if (voxelTrail != null) voxelTrail.Emitting = false;
     }
 
     private void OnEnable()
@@ -122,11 +92,6 @@ public class SwordTrail : MonoBehaviour
         if (blade != null) blade.OnHit -= Blade_OnHit;
     }
 
-    private void OnDestroy()
-    {
-        if (sparks != null) Destroy(sparks.gameObject);
-    }
-
     private void Player_OnAttack()
     {
         if (trail == null) return;
@@ -134,20 +99,13 @@ public class SwordTrail : MonoBehaviour
         trail.emitting = true;
         if (core != null) { core.Clear(); core.emitting = true; }
         emitUntil = Time.time + attackDuration;
+        if (voxelTrail != null) voxelTrail.Emitting = true;
+        VoxelFxRecipes.SwordSlash(transform);
     }
 
     private void Blade_OnHit(Vector3 position)
     {
-        if (sparks != null)
-        {
-            sparks.transform.position = position;
-            var ep = new ParticleSystem.EmitParams();
-            for (int i = 0; i < 16; i++)
-            {
-                ep.startColor = i < 10 ? new Color(1f, 0.55f, 0.1f) : Color.white;
-                sparks.Emit(ep, 1);
-            }
-        }
+        VoxelFxRecipes.SwordHit(position);
         if (CameraShake.Instance != null)
             CameraShake.Instance.ShakeScaled(2);
     }
@@ -159,6 +117,7 @@ public class SwordTrail : MonoBehaviour
             trail.emitting = false;
             if (core != null) core.emitting = false;
         }
+        if (voxelTrail != null && voxelTrail.Emitting && Time.time >= emitUntil) voxelTrail.Emitting = false;
     }
 
     private static Transform FindDeep(Transform root, string name)

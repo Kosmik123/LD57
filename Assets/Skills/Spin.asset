@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Spin
   m_EditorClassIdentifier: 
   DisplayName: Wirowanie
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: ab9c0eb35c7ddde4087f67dd4d3b502b, type: 3}
   Kind: 0
   UsesSpaceSlot: 0
   Tiers:

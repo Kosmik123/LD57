@@ -575,3 +575,154 @@ Test walki ma krok „mag” (Apply("Mage") → 3 pociski w bossa → Apply("War
 6. Wartości post-processingu per poziom: tabela `LevelAmbience.Presets` (bloom, próg, kontrast, winieta, ziarno, chromatic, cienie/środek/światła); mgła wolumetryczna od poziomu 4 (`fogVolumetric`), jej Volume ustawia `LevelAmbience.Apply()`.
 7. `PostFxPulse` (czas rzeczywisty): obrażenia = chromatic 0,35 i winieta +0,2 przez 0,25 s; level up = ekspozycja +0,4 przez 0,4 s; śmierć = saturacja do −80 w 0,6 s. Wyłączenie: usuń obiekt `Post Fx Pulse`.
 8. Prefaby poziomów sprzed rozszerzenia presetu biorą nowe pola post-processingu z `Presets` po numerze w nazwie; `ApplyPresetValues` (P2 Ambience) przy nowym komponencie kopiuje wszystko.
+
+## 16. Runda 11: stylizowane low-poly efekty skilli, pociski, populacja poziomu (automat)
+
+Kierunek od level artysty: efekty jak w ARPG (gęste, świecące, warstwowe), w stylizowanym low poly (nie voxel). Dwie
+biblioteki w kodzie: `VFX/VoxelFx` + `VoxelFxRecipes` (wojownik, cios, trafienia; nazwa historyczna, bryły są low poly)
+i `VFX/MageStylizedFx` (mag). Pociski: gracz 26 m / 22 m/s, kula ognia 20 m / 16 m/s, strzelec czas życia ×1,8.
+`Levels/LevelPopulation` (wiring `P10Wiring_Population`, w `Wire ALL`): wrogowie krążący po bieżącym poziomie,
+wyłączane w testach przez `LevelPopulation.DisabledForTests`.
+
+### Biblioteka efektów i skille wojownika
+n> ZMIANA KIERUNKU: bryły to low poly flat-shaded (tetraedr, oktaedr, ikosfera, kryształ) losowo mieszane przez `SetMeshes`; nazwy API bez zmian (`VoxelFx`, `VoxelTrailEmitter`, `VoxelOrbit`). `VoxelRing` ma dodatkowo miękki pierścień-quad (OutCubic), `VoxelTrailEmitter` ma TrailRenderer z gradientem.
+
+1. Plik `Assets/Scripts/VFX/VoxelFx.cs`: statyczna `VoxelFx` + komponenty `VoxelTrailEmitter`, `VoxelOrbit`, `VoxelGlowDriver`, `VoxelPillarDriver`. Wszystko w kodzie, bez assetów.
+2. Kolory HDR (np. `new Color(3f,1.4f,0.4f)`) świecą od bloomu. Wewnątrz: ParticleSystem Mesh (sześcian), `Emit(EmitParams)`; jasność niesie materiał (1 / 2,5 / 5), wybierany po największej składowej koloru.
+3. Rdzeń: `VoxelFx.Emit(Vector3 pos, Vector3 vel, Color color, float size, float life, bool gravity=false, bool lit=false, float spin=360f)`; `lit=true` = ciemny odłamek (URP Particles/Lit, kolor 0-1, bez świecenia).
+4. Cząstki: `Burst(pos, color, count=12, size=0.15f, speed=5f, life=0.45f, gravity=0f, lit=false)`, `Ring(center, radius, color, count=28, size=0.15f, speed=4f, life=0.45f)`, `Spiral(center, radius, height, color, count=30)`, `Column(pos, height, color, count=24)`, `Shards(pos, dir, color, count=12, lit=false, speed=7f)`. Parametr `gravity > 0` włącza opadanie (stała 1,6).
+5. Obiekty: `Flash(pos, color, size=1f)` (kostka 0 > size > 0 w 0,12 s plus Point Light 0,15 s), `VoxelRing(pos, radius, color, seconds=0.45f)` (24-36 kostek od 25% do pełnego promienia, gasną), `Pillar(pos, color, height=4f, seconds=0.8f)`, `GroundGlow(pos, radius, color, seconds)` oraz `GroundGlow(Transform follow, radius, color, seconds)` (podąża za celem).
+6. Komponenty: `VoxelTrailEmitter.Attach(GameObject, color, size=0.18f, spacing=0.25f, life=0.4f, seconds=0f)` (seconds>0 usuwa komponent po czasie; `Emitting` włącza/wyłącza), `VoxelOrbit.Attach(Transform, color, count=8, radius=1.3f, height=0.9f, seconds=1f, size=0.18f, turnsPerSecond=1.2f)`.
+7. Pomocnicze: `VoxelFx.MakeCube(parent, localPos, hdrColor, size)` (kostka-obiekt z jasnym materiałem), `VoxelFx.SetTint(renderer, color01)`. Pułapka: systemy są lazy i statyczne, po przeładowaniu sceny tworzą się od nowa (sprawdzane `!= null`).
+8. Przepisy warstwowe wojownika: `VoxelFxRecipes` (SwordSlash, SwordHit, SpinStart/SpinTick, ChargeStart/ChargeEnd/FireSpot, GroundSlam, AxeFlight/AxeHit/AxeTurn, WarCry); stałe kolorów `HotWhite, Orange, Gold, Red, Rock`.
+9. Podpięte: `SwordTrail` (łuk + kostki na ostrzu + błysk i iskry przy `OnHit`), `SpinSkill`, `ChargeSkill`, `GroundSlamSkill`, `AxeThrowSkill`, `WarCrySkill` (wywołania `SkillHit.SpawnEffect` usunięte tam, gdzie efekt zastąpiony; w rzucie toporem prefab zostaje jako model topora), `HitSplash.Burst` (kostki lit w kolorze wroga plus 2 jasne HDR, ta sama sygnatura), `SkillImpactVfx.SpinArc/Shockwave` (mesh łuku i pęknięcia zostają, doszły kostki).
+10. Dla maga: wołać `VoxelFx.*` bezpośrednio (np. `Burst`, `Flash`, `VoxelRing`, `TrailEmitter` przez `VoxelTrailEmitter.Attach`); nie dublować własnych ParticleSystemów kostek. Smoke z zrzutami warto odpalić ręcznie, bo kod nie był uruchamiany w Unity.
+
+### Efekty maga i pociski
+1. Wszystko w kodzie: `Assets/Scripts/VFX/MageStylizedFx.cs` (helpery + komponenty `MageShardTrail`, `MageFlashFx`, `MageGroundGlow`, `MageBoltFx`, `MageAttachedCubes`); żadnych prefabów ani assetów.
+2. Cztery wspólne ParticleSystemy odłamków (Mesh, bez billboardu) tworzą się przy pierwszym użyciu; siatki generowane w kodzie (flat-shaded), kolor HDR = mnożnik 3x w materiale, więc świecą od bloomu z `LevelAmbience`.
+3. Pocisk podstawowy: min. 22 m/s i 26 m wymuszone w `RangedAttack` (prefab ma stare 18/12, `Mathf.Max`), oktaedr obracany + smuga + Point Light.
+4. Kula ognia 16 m/s, 20 m; low-poly kula z płatkami-oktaedrami i TrailRenderer (`PlayerBolt.Launch(..., nested: true)`), wybuch: Flash + 2x Ring + Burst 24 + GroundGlow 2 s.
+5. Pocisk strzelca (`Projectile`): czas życia x1,8 (stała `LifetimeFactor`), żółta smuga z odłamków, rozsypanie na końcu zasięgu.
+6. Lodowa nova: Ring + 16 sopli + GroundGlow; oblodzenie = odłamki-dzieci wroga na `Tier.Duration` (4, ewolucja `Stun>0`: 8). Białego tintu nie ma.
+7. Tajemne kule = `OrbVisual`; Mrugnięcie: implozja 20 odłamków + linia 10 odłamków + wybuch w celu; Piorun: `MageStylizedFx.Bolt` na skok, ogłuszenie = 3 krążące odłamki.
+8. Test: Play, wybrać maga, strzelać/użyć każdego skilla; w razie potrzeby zmienić `GlowIntensity` (3) w `MageStylizedFx` i `Glow` w `PlayerBolt`.
+
+### Populacja poziomu
+1. Menu `LD57 > Wire P10 Population` dodaje `LevelPopulation` do `Level 1..8.prefab` (idempotentnie, nie rusza stref).
+2. targetAlive: 1:6, 2:8, 3:9, 4:10, 5:11, 6:12, 7:13, 8:8; respawnInterval 4 s; maxTotal 0.
+3. Skład (slime:pająk:strzelec): 1-2 = 1:0:0; 3-4 = 3:1:0; 5-6 = 3:1:1; 7-8 = 2:2:1.
+4. Aktywna tylko dla bieżącego poziomu (`OnLevelStarted`), stop po `OnLevelCleared`, zmianie poziomu, śmierci i wygranej; żywi zostają.
+5. Start: rozsiew po całym NavMeshu poziomu (trójkąty w pasie ±3 m od `LevelEntry`, osiągalne dla gracza, min. 8 m od niego).
+6. Potem co 4 s jeden wróg z punktu 10-20 m od gracza (najlepiej niewidoczny), gdy żywych < targetAlive.
+7. Populacja nie jest liczona przez `LevelEnemyTracker` (krata zależy tylko od stref), XP normalnie.
+8. Testy dymne MUSZĄ ustawić `LevelPopulation.DisabledForTests = true`; `Wanderer` (strzelec) wędruje do pierwszego alarmu.
+
+## 17. Runda 12: mag bez miecza, kula ognia, biomy i triplanar, pająki po ścianach (automat)
+
+Shader `Assets/Shaders/Triplanar.shader` (`LD57/Triplanar`): dodać do Project Settings > Graphics > Always Included
+Shaders przed buildem. Kolejność: `levelsforce` → `wireall` (P9 materiały na triplanar, P2 pochodnie po obu stronach
+ścieżki, propy biomów z `CaveDecor.Nature`, P10 populacja).
+
+### Mag P11
+1. Bez ręcznego podpinania: wszystko w kodzie, żadnych zmian w prefabach ani scenach (WireAll bez zmian).
+2. Mag (`MeleeHitboxes == false`): `PlayerAnimations` nie odpala triggera Attack; `PlayerFeel` robi gest rzutu zamiast wypadu ciosu; `LookAtCursor.RotationSpeed` jest zwalniany przez `PlayerController` niezależnie od hitboxów.
+3. Błysk w dłoni (`MageStylizedFx.CastFlash`): `RangedAttack` przy strzale i `PlayerSkillAnimator` przy skillach maga (poza Blink).
+4. Kula ognia: `MageFireCore` (6 brył + 3 płomienie) w `PlayerBolt`, dym to nowy czwarty ParticleSystem `Kind.Smoke` w `MageStylizedFx`.
+5. Lodowa nova: `MageIceSpikes` (sople + mgiełka), `MageFrostTint` dokłada komponent do wroga na czas spowolnienia i zdejmuje blok `_BaseColor`.
+6. Piorun/orby/blink: `MageBoltFx` (odnogi, migotanie), `MageElectrify`, `MageOrbPulse`, `Dissolve` + 3 pierścienie w `BlinkSkill`.
+7. Shadera `LD57/FireShard` NIE napisano (ogień na materiale Particles/Unlit z HDR), więc nic do Always Included.
+8. Test: Play, Mag, LPM (pocisk), skill kuli ognia po trafieniu w ścianę/slime'a (dym, iskry, żar na podłodze), sprawdzić w `smokecombat` brak wyjątków.
+
+### Biomy, triplanar, pochodnie P11
+1. Shader `Assets/Shaders/Triplanar.shader` (`LD57/Triplanar`): triplanar z pozycji swiata, `_Tiling` w metrach (4), `_TopMap/_TopColor/_TopThreshold` dla powierzchni w gore.
+2. `LD57/Wire P9 Materials` tworzy `Cave_Forest` (1-2), `Cave_Rock` (3-4), `Cave_Crystal` (5-6), `Cave_Abyss` (7-8) i przypina do `Model`; nowe PNG `moss_albedo`, `rock_veins_albedo`.
+3. Stare materialy `Cave_Warm/Grey/Cold/Violet` zostaja w repo, nic na nie nie wskazuje (mozna skasowac).
+4. Dodaj shader do Project Settings > Graphics > Always Included Shaders (zapas na Shader.Find; materialy-assety zwykle wystarcza).
+5. `LD57/Wire P2 Ambience`: pochodnie na slupach 1,6 m po obu stronach sciezki (2,5 m od osi): co 7 m (1-2), 9 m (3-4), 12 m (5-6); 7-8 krysztaly fioletowe co 10 m, jedna strona; grzyby 5-6 zostaja.
+6. Wiring jest idempotentny: kasuje `Torch *`, `Mushrooms *`, `Crystal *` pod rootem poziomu i buduje od nowa (wymaga NavMesha poziomu: `navmesh` przed tym).
+7. Plomien (`Torch.cs`): ~7 czastek/s w 2 warstwach + dym 1/s; swiatla bez cieni (int. 2, zasieg 6).
+8. `CaveDecor` generuje w runtime: las 1-2 (drzewa/krzaki/kamienie/trawa), 3-4 kamienie + uschniete drzewa, 5-6 krysztaly, 7-8 bez roslin; seed = numer poziomu, limit 10 ms.
+9. Presety `LevelAmbience` 1, 2, 7 zmienione; `P2` podmienia je w prefabach tylko gdy ambient nadal rowna sie staremu presetowi (reczne zmiany zostaja).
+10. Kolejnosc: `navmesh` -> `levels`/`newcave` -> `wireall` (P9 + P2); bez zmian w `Level Entry`, `Wave Zone N`, `Exit Gate`, `Exit Light`.
+
+### Pająki po ścianach P11
+1. Kod: `WallCrawler` (nowy, dodawany w locie przez `SpiderController`), stany `Climbing` i `WallWalk` w `SpiderController`, poza w `SpiderAnimator`, wariant spawnu w `LevelPopulation`. Prefaby bez zmian.
+2. Na poziomach 2-8 ściany to klify opadające w dół od krawędzi półki, więc „chodzenie po ścianach” = wspinaczka po klifach; na poziomie 1 (ściany nad podłogą) oraz po jego stropie/ścianach pająk biegnie po ścianie.
+3. `LevelPopulation.spiderClimbChance` (0,5): szansa, że pająk zjawia się 3-5 m pod krawędzią NavMesha (`FindClosestEdge`), przyklejony do klifu, i wychodzi na półkę (`Climbing`, awaryjnie po 6 s przenoszony na półkę). Brak klifu w raycaście = spawn jak dotąd.
+4. Pominięcie pyłu `SpawnEntrance` dla wspinacza: `LevelPopulation` nie dodaje komponentu; jeśli prefab pająka ma `SpawnEntrance` na sztywno, trzeba go zdjąć z prefabu (wtedy pył gra też przy wspinaczce).
+5. Pająk z `TryWallPoint` (ściana pionowa) dostaje `EnableWallWalk()`: po wykryciu gracza (12 m) biegnie po ścianie 1-2 s, potem telegraf `Cone` 0,4 s i zeskok z wyprzedzeniem 0,25 s. Pająki ze stref fal (WaveZone) tego NIE robią: ścieżka Perched→Dropping→Chasing bez zmian (krok testu walki).
+6. Po wspinaczce: jeśli gracz w 6 m, od razu `Leap` (dłuższy skok: prędkość 16 m/s, stożek na pełny dystans); inaczej `Chasing`.
+7. Wymaga: kolidery geometrii poziomu (raycast po `~(1<<6)`, ignoruje collidery z Rigidbody), Rigidbody pająka ustawiane na kinematic przy czatach i wspinaczce (po lądowaniu zostaje kinematic jak dotąd).
+8. Nowe parametry w Inspectorze `SpiderController` (nagłówek „Ściany”) i `SpiderAnimator` („Wspinaczka i bieg po ścianie”); wartości domyślne z kodu, w prefabach nic nie trzeba wpisywać.
+
+## 18. Runda 13: kompozycja poziomów, pająki na ścianach, koło skilli, mechaniki, boss (automat)
+
+W `Wire ALL` (po P10): `P12Wiring_SkillUi` → `P12Wiring_Mechanics` → `P12WiringBoss` (ostatni, bo P3/P1 przebudowują nogi).
+Landmarki stawia `levelsforce` (`P1Wiring_Levels.RunAll`), `wireall` dopisuje je, gdy brak. Testy ustawiają
+`EliteDirector.DisabledForTests` i `BossEncounter.DisabledForTests`. `BossEncounter` na `Level 1.prefab` (P6) stawia bossa
+do playtestów; jego śmierć przed poziomem 8 nie kończy runu (`GameManager`). Test walki: kroki „boss: zniszczenie 5 nóg”
+i „pająk na ścianie” (liczniki `SpiderSpawnHelper`). Liczby do sprawdzenia w logach: `[P2Ambience] ... świateł X, min odstęp Y`
+(X ≤ 24, Y ≥ 6), `[P1Levels] ... landmarki`, `[Decor] Level N: ...` (pokrycie 55–80 %, max w komórce ≤ 10, czas ≤ 60 ms).
+
+### Układ poziomów P12
+1. Kolejność: `levelsforce` (stawia też `Landmark N`; bez niego `wireall` dopisze brakujące landmarki sam, a `LD57 > Wire P12 Landmarks (NADPISZ)` przelicza tylko je, bez ruszania stref) → `wireall` (światła) → uruchomienie gry/testu (propy powstają w runtime).
+2. Pochodnie (`[P2Ambience] Level N: świateł X, min odstęp Y m, średni Z m, usunięto K duplikatów`): oś ścieżki co 9 m (1–2) / 12 m (3–4) / 15 m (5–6, 7–8 kryształy 12 m), na zmianę lewo/prawo 2,5 m od osi, dociągnięte do NavMesha; akcenty: 2 przy wejściu, 2 przy kracie (6,5 m przed nią), po 1 z każdej strony środka strefy (3,1 m od środka, więc para ma 6,2 m); landmark leśny: 2 pochodnie 3,1 m od drzewa wzdłuż ścieżki, kryształowy: 1 światło.
+3. Dedup: grzyby, kryształy, pochodnie i `Exit Light` (stały) razem; żadne dwie bliżej niż 6 m, wygrywa priorytet (landmark 3 > akcent 2 > regularne 1); limit 24 źródeł z `Exit Light` (przycinane regularne o najmniejszym odstępie do sąsiada). Poprawnie: świateł ≤ 24, min odstęp ≥ 6,0 m. „Średni" = średnia odległość do najbliższego sąsiada.
+4. Propy (`[Decor] Level N: klastrów X, propów Y, pokrycie siatki 10 m: Z % komórek z propem, max propów w komórce M, min odstęp klastrów D m, czas T ms | ...`) planuje `DecorLayout`: Poisson po trójkątach NavMesha (pas ±3 m od `Level Entry`), min odstęp środków klastrów 7 m (1–2) / 9 m (3–4) / 11 m (5–8), środek ≥ 3 m od osi ścieżki, ≥ 4 m od wejścia/stref/kraty, ≥ 3 m od źródeł światła.
+5. Klaster = 1 hero + 2–4 średnie + 4–8 małych w promieniu 3 m: las drzewo + krzaki/kamienie + trawa/kamyki; skała głaz lub uschnięte drzewo + rumowisko/stalagmity; kryształy duży kryształ + małe + grzyby; otchłań kieł + kokony/pajęczyny. `min odstęp klastrów` obejmuje też landmarki (P1 wybiera ich miejsca z odstępem 7/9/11 m, a gdy się nie da, loguje ostrzeżenie `najlepsze miejsce ... m od innego landmarku`). Poza klastrami: siatka 5 m, 30 % szans, tylko propy ≤ 0,5 m, ≥ 3,5 m od klastrów. W salach środek klastra jedzie do ściany (nisza), w korytarzach i „pustych" strefach szumu 22 m klastry są rzadsze (rytm).
+6. Korytarz: żaden prop wyższy niż 0,5 m bliżej niż 2,5 m od osi ścieżki (dotyczy też szkieletu i kłów gniazda); w raporcie `wysokich propów w pasie 2,5 m od osi: 0` i `klaster najbliżej osi` ≥ 2,5 m (środki zwykłych klastrów ≥ 3,0 m, landmarki ≥ 2,5 m).
+7. Pokrycie: „komórka chodna" = komórka 10 m z ≥ 8 m² NavMesha; pokrycie = komórki chodne z ≥ 1 propem / komórki chodne. Cel 55–80 % (klastry do 62 %, single do 76 %, a gdy < 55 %: wypełnienie pojedynczymi propami w pustych komórkach, licznik `wypełnienie` w logu); max 10 propów w komórce.
+8. Landmark (`Landmark N` + `LandmarkMarker`: Entry/Gate/Zone) stoi 4 m w bok od osi przy wejściu i kracie, na krawędzi sali 4–6 m od środka strefy; las: wielkie drzewo (pień 0,6 × 5 m, 3 korony 3–4 m), skała: menhir 5 m, kryształy: 3–4 kryształy do 4,4 m + światło, otchłań: kieł 6 m z kokonami. W raporcie `landmarków a/b (min wys. H m)`: H ≥ 4 m (sufit nad nim może go zmniejszyć, minimum 4,2 m nominalnie).
+9. Wysokości: drzewo pień 0,35 × 3,5 m + 3 ikosfery 2,5–3,5 m w dwóch zieleniach (≈ 6 m), krzak 1,0–1,4 m, kamień 0,4–1,2 m, trawa 0,3 m, uschnięte drzewo 4 m z 3 gałęziami; drzewa i kryształy są skalowane do sufitu nad nimi (zapas 0,5 m, minimum 55 % rozmiaru).
+10. Budżet 60 ms na poziom (plan do 30 ms): po przekroczeniu `Debug.LogWarning` z liczbą pominiętych propów; log `[Decor]` jest w logu Unity biegu (np. `Logs/unity-smoke*.log`), a nie w `p0-smoke.txt`. Wartości docelowe: pokrycie 55–80 %, max w komórce ≤ 10, min odstęp klastrów ≥ 7/9/11 m, czas ≤ 60 ms.
+
+### Pająki na ścianach P12
+1. `SpiderSpawnHelper` (statyczny): `FindWallAbove(floor,…)` (16 promieni z +1,5 m, ściana 2-3 m nad podłogą), `FindCliffBelow(near, player,…)` (krawędź NavMesha, kierunek „na zewnątrz” z sond, klif 2,5-5,5 m pod krawędzią), `SpawnForTest(prefab, nearPlayer, playerPos, preferClimb)`.
+2. Raycasty pająków idą przez `SpiderSpawnHelper.Raycast`: zawsze `queriesHitBackfaces = true` (w grze jest domyślnie false, a siatki poziomów 2-8 mają normalne w dół), normalna zwrócona do pająka.
+3. `LevelPopulation`: pająk ZAWSZE próbuje (poziom 1: ściana, 2-8: klif; potem drugi tryb; do 8 punktów bazowych), podłoga tylko jako fallback (`SpawnFallbacks++`, log). `spiderClimbChance` jest nieużywane (prefaby mają zapisane 0,5).
+4. `SpiderController.Perch()` przyczepia pająka do pionowej ściany w 1,1 m (też w strefach fal): `up` = normalna, wysokość 2-3 m nad podłogą, ciało 0,15 m nad ścianą (`SpiderAnimator`), nogi rozłożone.
+5. Wspinaczka 4,5 m/s, na wysokości półki krótki skok-wejście (vault 0,22 s) na NavMesh, awaryjny warp po 4 s (`ClimbWarps`), potem `Leap` gdy gracz ≤ 7 m, inaczej `Chasing`.
+6. Bieg po ścianie (`WallWalk`, tylko spawn z `LevelPopulation`/`SpawnForTest`): 1,5-3 s w stronę gracza na stałej wysokości, ×1,15 prędkości, nogi ×1,35, potem telegraf 0,4 s i zeskok z wyprzedzeniem; strefy fal nadal Perched → Dropping → Chasing.
+7. Błysk oczu (`Visual/Eyes` ×2,2 przez 0,4 s) przy pierwszym wykryciu gracza (`SpiderController.OnSpotted`).
+8. Nowe pola mają nowe nazwy (`wallRunMin/Max`, `climbLeapDistance`, `climbWarpAfter`), bo stare są zapisane w `Spider.prefab` i nadpisałyby domyślne.
+9. Liczniki statyczne (`WallPerches`, `ClimbsStarted`, `ClimbsReachedFloor`, `ClimbWarps`, `WallWalks`, `Leaps`, `SpawnFallbacks`; `Reset()`, `Summary()`) i logi `[Spider] …`.
+10. Test (ściana tylko na poziomie 1, klif tylko na 2-8): `Reset()`; `SpawnForTest(prefab, Ahead(5f..6f), playerPos, preferClimb:false)` (NIE stopy gracza: najbliższa ściana mogłaby być w 2,5 m i bieg skończyłby się w klatce); asercje: `LastSpawnMode == "wall"`, `WallPerches == 1` od razu, odległość płaska > 3 m. Po wykryciu (≤ 12 m) `WallWalks == 1` w ≤ 0,6 s; w trakcie biegu `Current == WallWalk` i `Dot(spider.transform.up, spider.SurfaceNormal) > 0,9` (po 0,3-1,0 s od startu biegu); po ≤ 6 s `Current` = Dropping/Chasing. Klif (`preferClimb:true`): `LastSpawnMode == "cliff"`, `ClimbsStarted == 1` od razu, w ≤ 2,5 s `ClimbsReachedFloor == 1` i `ClimbWarps == 0`, potem `Leap`/`Chasing`.
+
+### Koło skilli i ikony P12
+1. `LD57 > Wire P12 Skill UI` (albo `Run()` z menu): generuje `Assets/Graphics/Icons/<Kind>.png` (10 ikon 96x96), wpina `Icon` w assetach `Assets/Skills` i `Assets/Skills/Mage`, tworzy `Skill Wheel` pod `Game UI/Skill HUD`. Idempotentne.
+2. Wariant `(NADPISZ ikony)` rysuje PNG od nowa; ręcznie podmienione `Icon` (spoza `Assets/Graphics/Icons`) zostają.
+3. Bez wiringu też działa: `SkillIcons.Get(def)` bierze `Icon` albo generuje sprite w pamięci, `SkillWheelHud` buduje się sam w `Awake` (po dodaniu komponentu do obiektu pod `Game UI`).
+4. Sterowanie: PPM (przycisk myszy 1, nie oś `Fire2`, bo ta ma też Left Alt) używa aktywnego skilla koła; rolka w górę = poprzedni, w dół = następny; Tab = następny.
+5. Koło = skille ze slotów Q/E/R w kolejności zdobycia (bez spacji); ten sam skill, ten sam cooldown co na Q/E/R. Nowe API w `SkillSlots`: `Wheel`, `ActiveWheelIndex`, `WheelSkill`, `CycleWheel(dir)`, `OnWheelChanged(int)`.
+6. `Skill Wheel` stoi na prawo od slotów (x=330, wysokość środka slotów); jest dzieckiem `Skill HUD`, więc menu startowe chowa go razem z HUD-em.
+7. Własne ikony: wrzuć PNG (Sprite) do `Icon` assetu; `SkillIcons` ich nie nadpisze. `Docs/ARCHITECTURE.md` §3 (`SkillSlots`) do uzupełnienia o API koła.
+8. Test w Play: zdobyć 2-3 skille, rolka/Tab zmienia aktywny (złote tło, nazwa 0,8 s), PPM odpala; cooldown wspólny z Q/E/R.
+
+### Mechaniki P12
+1. Menu **LD57 > Wire P12 Mechanics** (`P12Wiring_Mechanics.Run()`, idempotentne): zakłada `Assets/Relics/` z 10 reliktami (istniejących nie nadpisuje), dodaje `PlayerStats`, `RelicHolder`, `FurySystem` na `Player.prefab`, w Michal.unity obiekt `Elite Director` (pole `heartPrefab` = `Prefabs/Pickups/Heart`) oraz w `Game UI`: `Relic Screen`, `Fury Meter`, `Relic Bar` (UI budują się w kodzie przy starcie).
+2. Dodać `P12Wiring_Mechanics.Run()` do `WireAll.cs` (plik koordynatora) i `EliteDirector.DisabledForTests = true` obok `WaveZone.InstantSpawnForTests` w testach dymnych (wyłącza elity i skrzynie; skrzynia pauzuje grę ekranem wyboru).
+3. Elity: `EliteDirector` co 0,5 s skanuje nowych `EnemyHealth` i z szansą 6% (poz. 1) do 18% (poz. 8) nadaje `EliteModifier` (max 3 żywe, nigdy boss). Afiksy: Szybki, Pancerny, Wybuchowy, Lodowy, Przywódca. Elita: XP ×3, 3 esencje, 20% serca.
+4. Esencja: 35% szans na 1 szt. ze zwykłego wroga; magnes 4 m (`EssencePickup.MagnetRadius`), +2 XP i +1 do `PlayerStats.Essence` (waluta na przyszłość).
+5. Skrzynie: 1-2 na poziom stawia `TreasureChest.PlaceOnLevel` 1,2 s po `OnLevelStarted` (poza ścieżką wejście-krata, min. 8 m od wejścia); podejście na 1,5 m otwiera; `RelicScreen` pauzuje i daje wybór 1 z 3 (klawisze 1-3).
+6. Relikty (assety `RelicDefinition`, pole `Value` do balansu): Żelazna wola, Lekkie stopy, Wampirzy kieł, Kolce, Szczęście, Drugi oddech, Zachłanność, Łowca elit, Twarda skóra, Echo; wszystkie 10 działają bez zmian w cudzych plikach.
+7. Furia: 8 zabójstw w oknie 4 s daje 6 s (+35% obrażeń, +20% prędkości), potem 10 s przerwy; pasek `Fury Meter` stoi na dole ekranu (160 px od dołu, pole `bottomOffset`), przy kole skilli (PPM) może wymagać przesunięcia.
+8. `PlayerStats.Instance`: `DamageMultiplier`, `MoveSpeedMultiplier`, `CritChance`, `LifestealPercent`, `ThornsDamage`, `DamageTakenMultiplier`, `Essence`; `SetModifier(kind, klucz, wartość, [sekundy])` składa źródła bez nadpisywania.
+9. Hooki w cudzych plikach (tylko 2 linie): `SkillHit.Apply` (w `ISkillBehaviour.cs`) i `DamagingBlade.OnTriggerEnter` wołają `PlayerStats.Scale(...)`; `PlayerBolt` korzysta z `SkillHit.Apply`, więc bez zmian.
+10. Obrażenia całkowite zaokrąglane losowo (1 dmg × 1,15 daje 1 lub 2, średnio 1,15), lifesteal i redukcja obrażeń liczone z akumulatorem/zwrotem HP.
+11. Znane ograniczenia: `ChargeSkill` (ślad ognia, `ChangeHealth(-2)` bezpośrednio) i kolce nie dostają mnożnika/kryta; Twarda skóra to zwrot HP po trafieniu (czysty hook: mnożnik w `Health.ChangeHealth`); `ExtraDashCharges` pominięte (brak hooka w `PlayerController`).
+12. Test ręczny: Play, `EliteDirector.MakeElite(EnemyHealth)` z konsoli/testu wymusza elitę, skrzynię otwiera podejście, Furię daje 8 szybkich zabójstw.
+
+### Boss P12
+1. Kolejność: `.meta` nowych skryptów wygeneruje Unity przy pierwszym otwarciu; potem `LD57 > Wire P12 Boss` (`P12WiringBoss.Run`) PO `Wire P3 Visuals` (P3 buduje `Visual/Legs` od nowa i kasuje komponenty nóg; `P1WiringBoss.CreateBossPrefab` też przebudowuje bossa z bazy, więc w `WireAll` P12 musi iść ostatni). Prefaby `Spider Egg` i `Web` wariant NADPISZ tworzy od zera, zwykły przebieg nie rusza istniejących.
+2. Który komponent odbiera obrażenia: każda `Leg_i` ma własny `Health` (12), kinematyczny `Rigidbody`, tag Enemy, triggerowe `CapsuleCollider` na `Upper`/`Lower` i `BossLeg`. Miecz (`DamagingBlade`: `attachedRigidbody` = noga -> jej `Health`) oraz skille/pociski (`SkillHit`, `BoltHit`, `MageTargeting`: `GetComponentInParent<Health>()` = noga) trafiają więc nogę, nie bossa.
+3. Ciało: dziecko `Body Hurtbox` (solidny collider po starym kolizerze korzenia, własny `Rigidbody`, `Health` 9999, `BossBodyHitbox`); każde trafienie jest cofane i idzie do `SpiderMotherBoss.RouteBodyHit` (x0,5 na najbliższą żywą nogę). Korzeń bossa nie ma już collidera.
+4. `Health` bossa (96) jest `IsInvulnerable` od `Awake` i odzwierciedla sumę HP nóg (`Leg_OnDamaged` na chwilę zdejmuje nietykalność): pasek, liczby obrażeń, błysk i hit stop działają jak dotąd. Zabicie `IsInvulnerable = false; ChangeHealth(-N)` nadal ginie i kończy run.
+5. Stany (`SpiderMotherBoss.State`): `Intro` 1,5 s -> `Walk` 3 m/s (-8 %/nogę) -> `Stomp` (gracz <= 3 m, windup 0,7 s, 12 obr. w 3 m, odstęp 3 s) | `LayEggs` (co 12 s, kucanie 1,8 s, 3 jajka za plecami co 1,5 m, max 9) | `Charge` (co 10 s, gracz 6-14 m, ryk 0,6 s + stożek, 12 m/s, 15 obr.) + `Stun` 1 s | `WebShot` (co 7 s, gracz 4-12 m, linia 0,6 s, 14 m/s, 4 obr. + `Root(1)`) -> `Collapse` 2 s -> śmierć. Pierwsze ataki po 50 % odstępu. Faza 2 (utracone 2 nogi): odstępy x0,8; faza 3 (4 nogi): dwie sieci.
+6. Przewrócenie: gdy żywych nóg <= 3 (utracone 5), `BeginCollapse` zatrzymuje mózg, nogi i ciało są nietykalne, po `collapseTime` boss robi `ChangeHealth(-MaxHealth)` z wyłączoną nietykalnością (`EnemyDeath`, `GameManager`: wygrana). `GameManager` zatrzymuje czas dopiero wtedy.
+7. Zdarzenia: `OnStateChanged(string)` (nazwy stanów + `Phase2`/`Phase3`), `OnPhaseChanged(int)`, `OnTelegraph(Vector3)` (tupnięcie, szarża, sieć), nowe `OnAction(string)` (`StompImpact`, `WebFire`, `EggLaid`, `ChargeStart`, `Roar`, `LegBroken`) i `OnLegDestroyed(BossLeg)`; `Legs`, `AliveLegs`, `LegsToDestroy`, `IsCollapsing`.
+8. `PlayerController.Root(float)`, `IsRooted`: ruch (`targetVelocity` = 0), dash i `ForceDash` zablokowane, input dalej czytany; atak i skille działają. `WebProjectile` pomija gracza w dashu (`Health.IsInvulnerable`), trafiony dostaje 4 obr., `Root(1)` i biały pierścień brył (`VoxelOrbit`).
+9. `SpiderEgg`: `Health` 1, `EnemyHealth` (XP 2, nie boss), tag Enemy; po 6 s wykluwa `Spider.prefab` na podłodze (`perchOnSpawn = false` refleksją przed `Start`), niezarejestrowane w `WaveZone`/`LevelEnemyTracker`; `SpiderEgg.CountAlive` pilnuje limitu 9.
+10. `BossHealthBar` buduje w kodzie rząd 8 ikon nóg pod paskiem (szare = zniszczone) i podpis „Zniszcz N nóg”; scena bez zmian.
+11. Test walki (`P2SmokeTest_Combat`, koordynator): krok bossa bez zmian (`Intro -> Walk -> Stomp...` w 8 s, `OnTelegraph` robi zrzut). Dołożyć krok „nogi”: `var boss = Find<SpiderMotherBoss>();` potem `foreach (var l in boss.Legs.Where(l => l.IsAlive).Take(5)) l.Damage(l.MaxHealth);` i po 2,5 s (Collapse trwa 2 s) `boss.IsCollapsing` (po 0,3 s) oraz `Find<GameManager>().IsRunOver == true`. Osobno: `boss.Legs[0].Damage(3)` zmniejsza `Health.CurrentHealth` bossa o 3; trafienie `BossBodyHitbox` (Health na `Body Hurtbox` `ChangeHealth(-4)`) zabiera nodze 2.
+12. Brakujące hooki (cudze pliki): publiczny setter `SpiderController.perchOnSpawn` (teraz refleksja); `Health` bez zdarzenia „przed obrażeniami” (dlatego cofanie trafień w `BossBodyHitbox`); `WaveZone.SpawnEntrance` dla bossa nie testowany; po zmianie `P3Wiring_Visuals.BuildBoss` dopisać wywołanie `P12WiringBoss.Run` w `WireAll`.

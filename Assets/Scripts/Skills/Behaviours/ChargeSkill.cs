@@ -22,11 +22,10 @@ public class ChargeSkill : ISkillBehaviour
         bool fire = ctx.TierIndex >= SkillDefinition.MaxTier;
         float nextTrail = 0f;
 
-        SkillHit.SpawnEffect(ctx, start, Quaternion.LookRotation(dir));
-
         float speed = range / ChargeTime;
         // Ruch robi PlayerController (ForceDash), bo jego FixedUpdate nadpisuje linearVelocity co krok.
         if (!ctx.Player.ForceDash(dir, range, speed)) yield break;
+        VoxelFxRecipes.ChargeStart(ctx, start, dir, ChargeTime, fire);
         float t = 0f;
         var prev = start;
         while (t < ChargeTime)
@@ -46,10 +45,12 @@ public class ChargeSkill : ISkillBehaviour
                 while (nextTrail <= travelled && nextTrail <= range)
                 {
                     FireTrail.Spawn(start + dir * nextTrail, ctx);
+                    VoxelFxRecipes.FireSpot(start + dir * nextTrail);
                     nextTrail += 1f;
                 }
             }
         }
+        VoxelFxRecipes.ChargeEnd(ctx.Origin != null ? ctx.Origin.position : prev, fire);
     }
 }
 

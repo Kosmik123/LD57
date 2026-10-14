@@ -184,6 +184,31 @@ słupy przy kracie (`P1Wiring_Levels`, `P2Wiring_Ambience`, `Levels/Torch`). Ter
 na `Model` poziomów (`Ground.mat` zostaje jako asset); post: rozbudowane presety `LevelAmbience` (bloom, kontrast, winieta,
 grain, chromatic, lift/gamma/gain), `VFX/PostFxPulse` (puls przy obrażeniach, level upie, śmierci), mgła wolumetryczna
 była już w `PC_Renderer`.
+Runda 11 (feedback: „efekty słabe, jak w ARPG ale stylized low poly; pociski znikają za szybko; wrogowie mają być cały czas
+na poziomie”): `VFX/VoxelFx` + `VoxelFxRecipes` (nazwa historyczna; low-poly bryły: tetraedr, oktaedr, ikosfera, kryształy,
+flat shading, HDR, miękkie pierścienie) dla ciosu, Spin, Charge, GroundSlam, AxeThrow, WarCry, `HitSplash`;
+`VFX/MageStylizedFx` dla skilli maga i pocisków; pociski dłuższe (gracz 26 m, kula ognia 20 m, strzelec ×1,8);
+`Levels/LevelPopulation` na prefabach poziomów (6–13 wrogów krążących po bieżącym poziomie, respawn co 4 s z 10–20 m,
+nie liczą się do kraty, `DisabledForTests` w testach), `Enemies/Wanderer` dla strzelca. Lista assetów do kupienia:
+`Desktop/Prace/LD57/LD57_assety_do_kupienia.txt` (tam też lądują pliki dla hajtuszko).
+Runda 12 (playtest: „mag sieka mieczem; kula ognia ma być ogniem z dymem i iskrami; biomy ciekawsze, triplanar, las na
+górze; pochodnie wbite w ścieżki; pająki po ścianach i z poziomu niżej”): mag nie odpala animacji Attack
+(`PlayerAnimations` przy `MeleeHitboxes == false`), gest rzucania i błysk w dłoni; kula ognia = `MageFireCore` (6 brył,
+3 płomienie, światło, iskry, dym, żar na trasie, wybuch ze słupem dymu i spaloną plamą). `Assets/Shaders/Triplanar.shader`
+(`LD57/Triplanar`, PBR, mech na górze) i materiały `Cave_Forest/Rock/Crystal/Abyss`; `CaveDecor.Nature`: drzewa, krzaki,
+kamienie, trawa (1–2), uschnięte pnie (3–4), kryształy (5–6), nic (7–8); pochodnie po obu stronach ścieżki co 7/9/12 m,
+kryształy na 7–8. `Enemies/WallCrawler` + stany `Climbing`/`WallWalk` w `SpiderController`: pająk z populacji wspina się
+z 3–5 m pod krawędzią półki, biega po ścianie i skacze na gracza z wyprzedzeniem; pająki ze stref bez zmian (test).
+Runda 13 (playtest: „mag ciacha mieczem przy czarze; korony za małe; assety niespójnie, 20 pochodni obok siebie; pająków
+na ścianach nie widać; skille pod PPM z kołem i ikonami; nowe mechaniki; boss z nogami, jajkami i siecią”): `SfxKind.Cast`
+dla maga; `Levels/DecorLayout` (Poisson po NavMeshu, klastry duży–średni–mały, korytarz 2,5 m wolny, landmarki
+`LandmarkMarker` przy wejściu/strefach/kracie, raport `[Decor]`), światła z dedupem ≥ 6 m i limitem 24 (`[P2Ambience]`),
+drzewa 6 m; `Enemies/SpiderSpawnHelper` (ściana na 1, klif na 2–8, liczniki do testów, `SpawnForTest`); `SkillSlots.Wheel`
++ `UI/SkillWheelHud` (PPM, rolka/Tab) + `UI/SkillIcons` (PNG w `Assets/Graphics/Icons`); `Progression/PlayerStats`,
+`Enemies/EliteDirector`+`EliteModifier` (afiksy), `Pickups/EssencePickup`, `Levels/TreasureChest` + `RelicDefinition`/`RelicHolder`
++ `UI/RelicScreen`, `Progression/FurySystem` + `UI/FuryMeter`; boss: `Enemies/BossLeg` (8 nóg po 12 HP, ciało przekierowuje
+×0,5), `SpiderEgg`, `WebProjectile`, stany Intro/Walk/Stomp/LayEggs/Charge/WebShot/Collapse, `PlayerController.Root`;
+`Levels/BossEncounter` na poziomie 1 (playtest), wygrana tylko na poziomie 8.
 Następne: feedback z galerii, balans (boss, poziom 8), podmiana placeholderów na assety, mgła wolumetryczna (feature na `PC_Renderer`).
 
 ## Backlog P0 (zamknięcie pętli)

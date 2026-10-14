@@ -38,13 +38,13 @@ public class LevelAmbience : MonoBehaviour
     public static readonly Preset[] Presets =
     {
         //                ambient              fog                 gest.   slonce sloncekol            lampa  winieta bloom ziarno sat    temp  mgla    prog  kontr gladk. chrom  cienie              srodek              swiatla
-        new Preset(C(.55f,.45f,.35f), C(0,0,0),          0f,     1.2f,  C(1f,.85f,.65f),  0f,    0.25f, 0.60f, 0.10f,  8f,    8f, false, 0.9f,  10f, 0.40f, 0f,    C(1f,.97f,.92f),    C(1f,.98f,.94f),    C(1f,.96f,.88f)), // 1 cieply braz
-        new Preset(C(.42f,.32f,.24f), C(0,0,0),          0f,     0.9f,  C(.95f,.8f,.6f),  0f,    0.25f, 0.60f, 0.14f,  6f,    6f, false, 0.9f,  10f, 0.40f, 0f,    C(1f,.96f,.9f),     C(1f,.97f,.93f),    C(1f,.95f,.87f)), // 2 braz
+        new Preset(C(.52f,.50f,.34f), C(0,0,0),          0f,     1.2f,  C(1f,.85f,.65f),  0f,    0.25f, 0.60f, 0.10f,  8f,    8f, false, 0.9f,  10f, 0.40f, 0f,    C(1f,.97f,.92f),    C(1f,.98f,.94f),    C(1f,.96f,.88f)), // 1 las: cieply, lekko zielonkawy
+        new Preset(C(.38f,.38f,.26f), C(0,0,0),          0f,     0.9f,  C(.95f,.8f,.6f),  0f,    0.25f, 0.60f, 0.14f,  6f,    6f, false, 0.9f,  10f, 0.40f, 0f,    C(1f,.96f,.9f),     C(1f,.97f,.93f),    C(1f,.95f,.87f)), // 2 las, nieco ciemniej
         new Preset(C(.28f,.25f,.22f), C(0,0,0),          0f,     0.55f, C(.85f,.78f,.7f), 0f,    0.30f, 0.70f, 0.15f,  0f,     2f, false, 0.9f,  15f, 0.45f, 0f,    C(.95f,.95f,.97f), C(1f,1f,1f),        C(1f,.98f,.95f)), // 3 szarobrazowy
         new Preset(C(.24f,.24f,.24f), C(.35f,.35f,.36f), 0.012f, 0.4f,  C(.8f,.8f,.8f),   0f,    0.30f, 0.70f, 0.15f, -2f,    -2f, true,  0.9f,  15f, 0.45f, 0f,    C(.94f,.95f,.98f), C(1f,1f,1f),        C(.98f,.98f,1f)), // 4 szary + mgla
         new Preset(C(.08f,.14f,.11f), C(.05f,.09f,.07f), 0.012f, 0.2f,  C(.4f,.6f,.5f),   0f,    0.35f, 1.00f, 0.22f, -10f,   -6f, true,  0.85f, 15f, 0.50f, 0f,    C(.92f,1f,.97f),    C(.97f,1f,.99f),    C(.95f,1f,1f)),   // 5 chlodny zielonoszary
         new Preset(C(.07f,.1f,.15f),  C(.04f,.06f,.1f),  0.014f, 0.15f, C(.4f,.5f,.7f),   0.6f,  0.35f, 1.00f, 0.24f, -10f,  -10f, true,  0.85f, 15f, 0.50f, 0f,    C(.9f,.95f,1f),     C(.95f,.98f,1f),    C(.93f,.97f,1f)), // 6 niebieskoszary
-        new Preset(C(.02f,.03f,.07f), C(.01f,.02f,.05f), 0.018f, 0.05f, C(.3f,.35f,.6f),  1.2f,  0.45f, 1.20f, 0.25f, -10f,  -13f, true,  0.8f,  20f, 0.55f, 0.05f, C(.88f,.9f,1f),     C(.95f,.95f,1f),    C(.95f,.88f,1f)), // 7 granat, lampa
+        new Preset(C(.015f,.02f,.055f), C(.04f,.015f,.08f), 0.02f, 0.05f, C(.3f,.35f,.6f),  1.2f,  0.45f, 1.20f, 0.25f, -10f,  -13f, true,  0.8f,  20f, 0.55f, 0.05f, C(.88f,.9f,1f),     C(.95f,.95f,1f),    C(.95f,.88f,1f)), // 7 ciemny granat, fioletowa mgla, lampa
         new Preset(C(.12f,.06f,.18f), C(.1f,.03f,.15f),  0.02f,  0.15f, C(.6f,.3f,.9f),   1.5f,  0.45f, 1.20f, 0.25f, -10f,  -15f, true,  0.8f,  20f, 0.55f, 0.05f, C(.9f,.85f,1f),     C(.96f,.92f,1f),    C(.95f,.8f,1f)),  // 8 fiolet
     };
 

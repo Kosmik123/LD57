@@ -277,6 +277,13 @@ public class ProceduralSfxBank : MonoBehaviour
                 AddBody(b, 0f, 0.5f, 180f, 520f, 0.8f, 0.05f, 1.2f, 0.4f, 6f, 0.03f);
                 AddNoise(b, 0f, 0.5f, 800f, 1800f, 3000f, 0.35f, 0.45f, 5f);
                 return Finish("windup", b, false, false);
+            case SfxKind.Cast:
+                // zaklęcie: powietrzny świst w górę + krótki dzwonkowy błysk (bez metalu miecza)
+                b = Buf(0.42f);
+                AddNoise(b, 0f, 0.26f, 700f, 2600f, 4200f, 0.45f, 0.03f, 0.12f);
+                AddBell(b, 0.04f, 0.3f, 880f, 0.5f, 0.1f);
+                AddBell(b, 0.08f, 0.3f, 1320f, 0.35f, 0.09f);
+                return Finish("cast", b, false, false);
             case SfxKind.Shot:
                 b = Buf(0.24f);
                 AddNoise(b, 0f, 0.04f, 7000f, 3000f, 1500f, 0.9f, 0.002f, 0.012f);

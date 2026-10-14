@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: AxeThrow
   m_EditorClassIdentifier: 
   DisplayName: Rzut toporem
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 57760537393082e4da2dd19525d355d0, type: 3}
   Kind: 3
   UsesSpaceSlot: 0
   Tiers:

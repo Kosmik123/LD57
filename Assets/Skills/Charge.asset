@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Charge
   m_EditorClassIdentifier: 
   DisplayName: "Szar\u017Ca"
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 15c8b5c38f5f6b44f8aaf791db630929, type: 3}
   Kind: 1
   UsesSpaceSlot: 0
   Tiers:

@@ -291,8 +291,26 @@ public class PlayerFeel : MonoBehaviour
 
     // ---------- Cios ----------
 
+    /// <summary>Gest rzucania czaru (klasy dystansowe): Body lekko w tył 0,05 s, do przodu 0,1 s (mniejszy niż cios), powrót.</summary>
+    private void CastGesture()
+    {
+        if (body == null) return;
+        var fwd = transform.forward; fwd.y = 0f; fwd.Normalize();
+        if (posTween != null && posTween.IsActive()) posTween.Kill();
+        body.localPosition = basePos;
+        var parent = body.parent != null ? body.parent : transform;
+        var ld = parent.InverseTransformDirection(fwd);
+        ld.y = 0f; ld.Normalize();
+        var seq = DOTween.Sequence();
+        seq.Append(body.DOLocalMove(basePos - ld * 0.04f, 0.05f).SetEase(Ease.OutQuad));
+        seq.Append(body.DOLocalMove(basePos + ld * 0.06f, 0.1f).SetEase(Ease.OutQuad));
+        seq.Append(body.DOLocalMove(basePos, 0.15f).SetEase(Ease.InOutQuad));
+        posTween = seq;
+    }
+
     private void Player_OnAttack()
     {
+        if (player != null && !player.MeleeHitboxes) { CastGesture(); return; } // mag: bez wypadu ciosu i wiatru ostrza
         var fwd = transform.forward; fwd.y = 0f; fwd.Normalize();
         if (body != null)
         {

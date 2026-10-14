@@ -32,6 +32,10 @@ public static class SkillImpactVfx
 
         // błysk pierścienia na ziemi przy starcie
         Ring(origin.position + Vector3.up * 0.05f, radius * 0.9f, color, 0.25f, 0.35f);
+
+        // kostki ostrza: szybka orbita HDR nad podkładem z meshu łuku
+        var hdr = new Color(color.r * 3f, color.g * 3f, color.b * 3f);
+        VoxelOrbit.Attach(origin, hdr, 6, radius * 0.85f, 0.9f, duration, 0.24f, 2.5f);
     }
 
     /// <summary>Wycinek pierścienia 300° (promień 0,35–1,05) z alfą malejącą ku ogonowi.</summary>
@@ -80,6 +84,9 @@ public static class SkillImpactVfx
         Ring(ground, radius * 0.6f, Color.Lerp(color, Color.white, 0.6f), 0.2f, 0.3f);
         Cracks(ground, radius, 1.6f);
         Dust(position, radius, 28);
+        var hdr = new Color(color.r * 2.5f, color.g * 2.5f, color.b * 2.5f);
+        VoxelFx.VoxelRing(ground, radius, hdr, 0.45f);
+        VoxelFx.Burst(ground + Vector3.up * 0.2f, new Color(0.3f, 0.25f, 0.2f), 8, 0.18f, 5f, 0.6f, 1f, true);
         if (CameraShake.Instance != null) CameraShake.Instance.Shake(0.3f, 0.3f);
         HitStop.Freeze(0.08f);
     }

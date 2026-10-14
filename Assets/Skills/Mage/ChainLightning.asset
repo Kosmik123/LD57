@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ChainLightning
   m_EditorClassIdentifier: 
   DisplayName: "\u0141a\u0144cuch b\u0142yskawic"
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 8a78110d38f0e9f4ab6351eaf25424d9, type: 3}
   Kind: 9
   UsesSpaceSlot: 0
   Tiers:

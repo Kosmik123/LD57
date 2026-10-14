@@ -51,7 +51,7 @@ public class SfxHooks : MonoBehaviour
     private Vector3 PlayerPos => player != null ? player.transform.position : Vector3.zero;
 
     private void Player_OnDashed() => Sfx.Play(SfxKind.Dash, PlayerPos);
-    private void Player_OnAttack() => Sfx.Play(SfxKind.Attack, PlayerPos);
+    private void Player_OnAttack() => Sfx.Play(player != null && !player.MeleeHitboxes ? SfxKind.Cast : SfxKind.Attack, PlayerPos); // mag: rzut, nie miecz
     private void Slots_OnSkillChanged(SkillInstance _) => Sfx.Play(SfxKind.CardPick);
 
     private void PlayerHealth_OnHealthChanged(int change)

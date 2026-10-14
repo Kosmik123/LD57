@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GroundSlam
   m_EditorClassIdentifier: 
   DisplayName: "Uderzenie w ziemi\u0119"
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 9bdcf888b78c5ef4ab66cbab558e04a2, type: 3}
   Kind: 2
   UsesSpaceSlot: 1
   Tiers:

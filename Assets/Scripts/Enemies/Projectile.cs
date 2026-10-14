@@ -10,10 +10,14 @@ public class Projectile : MonoBehaviour
     private float lifeLeft;
     private bool inFlight;
     private TrailRenderer trail;
+    private MageShardTrail cubeTrail;
+    private const float LifetimeFactor = 1.8f; // pociski znikały za szybko: zasięg x1,8 przy tej samej prędkości
+    private static readonly Color CubeYellow = new Color(1f, 0.85f, 0.15f);
 
     private void Awake()
     {
         trail = WorldVfx.AddProjectileTrail(gameObject);
+        cubeTrail = MageStylizedFx.AddTrail(gameObject, CubeYellow, 0.1f, 0.45f, false);
     }
 
     private void Reset()
@@ -31,10 +35,11 @@ public class Projectile : MonoBehaviour
         transform.rotation = Quaternion.LookRotation(this.direction);
         this.speed = speed;
         this.damage = damage;
-        lifeLeft = lifetime;
+        lifeLeft = lifetime * LifetimeFactor;
         inFlight = true;
         gameObject.SetActive(true);
         if (trail != null) trail.Clear();
+        if (cubeTrail != null) cubeTrail.Restart();
     }
 
     private void Update()
@@ -44,7 +49,10 @@ public class Projectile : MonoBehaviour
         transform.position += direction * (speed * Time.deltaTime);
         lifeLeft -= Time.deltaTime;
         if (lifeLeft <= 0f)
+        {
+            MageStylizedFx.Burst(transform.position, CubeYellow, 4, 0.12f, 2.5f, 0.45f); // rozsypuje się na końcu zasięgu
             ReturnToPool();
+        }
     }
 
     private void OnTriggerEnter(Collider other)

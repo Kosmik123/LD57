@@ -31,6 +31,10 @@ public class FrostNovaSkill : ISkillBehaviour
         foreach (var health in already)
         {
             if (health == null || health.IsDead || !health.CompareTag("Enemy")) continue;
+            // oblodzenie: 4 kostki przyczepione na czas spowolnienia, 8 przy ewolucji (zamrożeni)
+            MageStylizedFx.Burst(health.transform.position + Vector3.up * 0.8f, Ice, 4, 0.1f, 3f, 0.4f);
+            MageFrostTint.Apply(health.gameObject, new Color(0.5f, 0.85f, 1f), ctx.Tier.Duration); // jasnoniebieski tint na czas spowolnienia
+            MageAttachedCubes.Attach(health.transform, Ice, ctx.Tier.Stun > 0f ? 8 : 4, ctx.Tier.Duration, false, 0.16f);
             var agent = health.GetComponentInParent<NavMeshAgent>();
             if (agent == null || ctx.Runner == null) continue;
             bool running = slowedUntil.ContainsKey(agent);
@@ -62,13 +66,10 @@ public class FrostNovaSkill : ISkillBehaviour
         var ground = WorldVfx.GroundBelow(center);
         WorldVfx.Ring(ground, radius, Ice, 0.5f, 0.8f, false);
         WorldVfx.Ring(ground, radius * 0.55f, Color.white, 0.35f, 0.6f, false);
-        WorldVfx.FlashLight(center + Vector3.up, Ice, 2.5f, radius * 2f, 0.3f);
-        for (int i = 0; i < 16; i++)
-        {
-            float a = i / 16f * Mathf.PI * 2f + Random.Range(-0.2f, 0.2f);
-            var dir = new Vector3(Mathf.Cos(a), 0f, Mathf.Sin(a));
-            var vel = dir * Random.Range(radius * 1.2f, radius * 2.2f) + Vector3.up * Random.Range(1f, 3f);
-            WorldVfx.Shard(center + Vector3.up * 0.3f + dir * 0.4f, vel, Color.Lerp(Ice, Color.white, Random.value), Random.Range(0.3f, 0.6f), Random.Range(0.4f, 0.7f));
-        }
+        MageStylizedFx.Flash(center + Vector3.up * 0.5f, Ice, 1.5f);
+        MageStylizedFx.Ring(ground, radius, Ice, 36);
+        MageStylizedFx.Ring(ground, radius * 0.55f, Color.white, 20);
+        MageStylizedFx.IceGrowth(ground, radius, Ice, 16, 8); // sople rosną, stoją 1,2 s, kruszą się; mgiełka mrozu
+        MageStylizedFx.GroundGlow(ground, radius * 0.8f, Ice, 1.5f, 0.5f);
     }
 }

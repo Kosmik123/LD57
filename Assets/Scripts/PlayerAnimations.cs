@@ -14,6 +14,8 @@ public class PlayerAnimations : MonoBehaviour
 
     private void PlayerMovement_OnAttack()
     {
+        // Klasy dystansowe (mag) rzucają czar: bez animacji machnięcia mieczem.
+        if (!playerMovement.MeleeHitboxes) return;
         animator.SetTrigger("Attack");
     }
 

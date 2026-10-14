@@ -171,6 +171,9 @@ public static class P1Wiring_Levels
                 zl.Entries.Add((BossPath, SpawnOnPath(corners, bestLen - 6f, Vector3.zero, entry), 1));
             layout.Zones.Add(zl);
         }
+        // Landmarki (hero propy biomu przy wejściu, strefach i kracie): liczone tu, na żywym NavMeshu.
+        layout.Landmarks = PlanLandmarks(level, corners, entry, layout.EntryForward, exit, layout.ExitForward,
+            layout.Zones.Select(zl => (zl.Position, zl.Forward)).ToList(), layout.Zones.SelectMany(zl => zl.Entries.Select(en => en.pos)).ToList());
         RestoreScene(previousScene);
 
         // 2. Zapis do prefabu.
@@ -259,6 +262,8 @@ public static class P1Wiring_Levels
             SetRef(exitGate, "blocking", bars.GetComponent<BoxCollider>());
             SetRef(exitGate, "trigger", trigger);
 
+            ApplyLandmarks(root, layout.Landmarks);
+            Debug.Log($"[P1Levels] Level {level}: {LandmarkSummary(layout.Landmarks)}");
             PrefabUtility.SaveAsPrefabAsset(root, path);
             Debug.Log($"[P1Levels] Level {level}: {zoneCount} strefy, skład slime {comp.slime} pająk {comp.spider} strzelec {comp.shooter}, zapisane");
         }
@@ -276,6 +281,7 @@ public static class P1Wiring_Levels
     {
         public Vector3 Entry, EntryForward, Exit, ExitForward;
         public List<ZoneLayout> Zones = new List<ZoneLayout>();
+        public List<LandmarkSpot> Landmarks = new List<LandmarkSpot>();
     }
 
     static void Restore(string scenePath)
@@ -470,6 +476,192 @@ public static class P1Wiring_Levels
         go.transform.SetParent(parent, false);
         go.GetComponent<Renderer>().sharedMaterial = mat;
         return go;
+    }
+
+    // ---------------------------------------------------------------- landmarki (runda 12): Landmark N + LandmarkMarker
+
+    public struct LandmarkSpot { public LandmarkKind Kind; public Vector3 Pos; }
+
+    const float LandmarkMinPath = 2.5f;     // landmark nie stoi w korytarzu ścieżki
+    const float LandmarkMinSpawn = 2f;      // ani na punkcie spawnu
+    const float LandmarkGoodGap = 11f;      // docelowy odstęp między landmarkami (= odstęp klastrów poziomów 5-8)
+
+    /// <summary>
+    /// Landmarki: wejście i krata 4 m w bok od osi (obie strony i kilka przesunięć, wygrywa najlepszy wynik), strefy na krawędzi sali
+    /// 4-6 m od środka (16 kierunków; krawędź NavMesha 0,8 m za landmarkiem). Wszystko dociągnięte do NavMesha, >= 2,5 m od osi ścieżki,
+    /// >= 2 m od spawnów, a odstępy między landmarkami maksymalizowane (cel 11 m). Kolejność: wejście, strefy, krata.
+    /// </summary>
+    public static List<LandmarkSpot> PlanLandmarks(int level, Vector3[] corners, Vector3 entry, Vector3 entryForward, Vector3 exit, Vector3 exitForward,
+        IList<(Vector3 pos, Vector3 forward)> zones, IList<Vector3> spawns)
+    {
+        var spots = new List<LandmarkSpot>();
+        var taken = new List<Vector3>();
+        float minGap = DecorLayout.MinClusterSpacing(level);   // landmarki są klastrami: odstęp 7 / 9 / 11 m jak między klastrami
+        PlanSideLandmark(spots, taken, minGap, LandmarkKind.Entry, entry, entryForward, corners, spawns, corners.Length >= 2 ? Flat(corners[1] - corners[0]) : Vector3.forward);
+        if (zones != null)
+            foreach (var z in zones) PlanZoneLandmark(spots, taken, minGap, z.pos, z.forward, corners, spawns);
+        PlanSideLandmark(spots, taken, minGap, LandmarkKind.Gate, exit, exitForward, corners, spawns, corners.Length >= 2 ? Flat(corners[corners.Length - 1] - corners[corners.Length - 2]) : Vector3.forward);
+        return spots;
+    }
+
+    static float GapTo(List<Vector3> taken, Vector3 p)
+    {
+        float best = 99f;
+        foreach (var t in taken) best = Mathf.Min(best, Flat(t - p).magnitude);
+        return best;
+    }
+
+    static bool LandmarkOk(Vector3 want, Vector3[] corners, IList<Vector3> spawns, out Vector3 snapped)
+    {
+        snapped = want;
+        if (!NavMesh.SamplePosition(want, out var h, 1.5f, NavMesh.AllAreas)) return false;
+        if (Flat(h.position - want).magnitude > 1.5f) return false;
+        if (DecorLayout.PathDistance(corners, h.position) < LandmarkMinPath) return false;
+        if (spawns != null) foreach (var s in spawns) if (Flat(s - h.position).magnitude < LandmarkMinSpawn) return false;
+        snapped = h.position;
+        return true;
+    }
+
+    static void PlanSideLandmark(List<LandmarkSpot> spots, List<Vector3> taken, float minGap, LandmarkKind kind, Vector3 center, Vector3 forward,
+        Vector3[] corners, IList<Vector3> spawns, Vector3 pathDir)
+    {
+        var tangent = Flat(forward);
+        if (tangent.sqrMagnitude < 0.01f) tangent = pathDir;
+        if (tangent.sqrMagnitude < 0.01f) tangent = Vector3.forward;
+        tangent.Normalize();
+        var side = Vector3.Cross(Vector3.up, tangent);
+        float bestScore = float.MinValue; Vector3 best = default; bool found = false;
+        foreach (float lat in new[] { 4f, 5f, 3.2f })
+            foreach (float along in new[] { 0f, -3f, 3f, -6f, 6f, -9f, -12f })
+                foreach (int sgn in new[] { -1, 1 })
+                {
+                    var want = center + side * (lat * sgn) + tangent * along;
+                    if (!LandmarkOk(want, corners, spawns, out var snapped)) continue;
+                    float gap = GapTo(taken, snapped);
+                    float score = (gap >= minGap ? 1000f : 0f) - Mathf.Abs(lat - 4f) * 2f - Mathf.Abs(along) * 0.5f + Mathf.Min(gap, LandmarkGoodGap);
+                    if (score > bestScore) { bestScore = score; best = snapped; found = true; }
+                }
+        if (!found) { Debug.LogWarning($"[P1Levels] landmark {kind}: brak miejsca 3-5 m od osi, pomijam"); return; }
+        if (GapTo(taken, best) < minGap) Debug.LogWarning($"[P1Levels] landmark {kind}: najlepsze miejsce {GapTo(taken, best):F1} m od innego landmarku (cel {minGap:F0} m)");
+        spots.Add(new LandmarkSpot { Kind = kind, Pos = best });
+        taken.Add(best);
+    }
+
+    static void PlanZoneLandmark(List<LandmarkSpot> spots, List<Vector3> taken, float minGap, Vector3 center, Vector3 forward, Vector3[] corners, IList<Vector3> spawns)
+    {
+        var fwd = Flat(forward);
+        if (fwd.sqrMagnitude < 0.01f) fwd = Vector3.forward;
+        fwd.Normalize();
+        float bestScore = float.MinValue; Vector3 best = default; bool found = false;
+        for (int i = 0; i < 16; i++)
+        {
+            float a = i * 22.5f * Mathf.Deg2Rad;
+            var dir = new Vector3(Mathf.Cos(a), 0f, Mathf.Sin(a));
+            float reach = EdgeReach(center, dir, 9f);
+            float d = Mathf.Min(reach - 0.8f, 6f);                       // 0,8 m od krawędzi, nie dalej niż 6 m od środka
+            if (d < 2.5f) continue;
+            if (!LandmarkOk(center + dir * d, corners, spawns, out var snapped)) continue;
+            float dist = Flat(snapped - center).magnitude;
+            bool inRange = dist >= 4f && dist <= 6.05f;
+            float gap = GapTo(taken, snapped);
+            float perpendicular = 1f - Mathf.Abs(Vector3.Dot(dir, fwd));   // boki sali zamiast osi ścieżki
+            float score = (gap >= minGap ? 1000f : 0f) + (inRange ? 50f : 0f) + (reach <= 6.9f ? 10f : 0f) + perpendicular * 5f + Mathf.Min(gap, LandmarkGoodGap);
+            if (score > bestScore) { bestScore = score; best = snapped; found = true; }
+        }
+        if (!found) { Debug.LogWarning("[P1Levels] landmark strefy: brak krawędzi sali w zasięgu, pomijam"); return; }
+        if (GapTo(taken, best) < minGap) Debug.LogWarning($"[P1Levels] landmark strefy: najlepsze miejsce {GapTo(taken, best):F1} m od innego landmarku (cel {minGap:F0} m)");
+        spots.Add(new LandmarkSpot { Kind = LandmarkKind.Zone, Pos = best });
+        taken.Add(best);
+    }
+
+    /// <summary>Kasuje stare `Landmark N` i tworzy nowe (pusty obiekt + LandmarkMarker, pivot na podłodze).</summary>
+    public static void ApplyLandmarks(GameObject root, List<LandmarkSpot> spots)
+    {
+        for (int i = root.transform.childCount - 1; i >= 0; i--)
+        {
+            var c = root.transform.GetChild(i);
+            if (c.name.StartsWith("Landmark ") && c.GetComponent<LandmarkMarker>() != null) Object.DestroyImmediate(c.gameObject);
+        }
+        for (int i = 0; i < spots.Count; i++)
+        {
+            var go = new GameObject($"Landmark {i + 1}");
+            go.transform.SetParent(root.transform, false);
+            go.transform.position = spots[i].Pos;
+            var marker = go.AddComponent<LandmarkMarker>();
+            int kind = (int)spots[i].Kind;
+            SetProp(marker, "kind", p => p.enumValueIndex = kind);
+        }
+    }
+
+    /// <summary>Raport landmarków do logu: liczba i najmniejszy odstęp (m).</summary>
+    public static string LandmarkSummary(List<LandmarkSpot> spots)
+    {
+        float min = float.MaxValue;
+        for (int i = 0; i < spots.Count; i++)
+            for (int j = i + 1; j < spots.Count; j++)
+                min = Mathf.Min(min, Flat(spots[i].Pos - spots[j].Pos).magnitude);
+        return $"landmarki {spots.Count} ({string.Join(", ", spots.Select(s => s.Kind.ToString()))}), min odstęp {(min == float.MaxValue ? "n/d" : min.ToString("F1", System.Globalization.CultureInfo.InvariantCulture))} m";
+    }
+
+    /// <summary>Istniejące `Landmark N` instancji poziomu albo (gdy brak) świeży plan z jej Level Entry / Wave Zone N / Exit Gate. Wołać w tymczasowej scenie.</summary>
+    public static List<LandmarkSpot> LandmarksFromInstance(int level, GameObject instance, Vector3[] corners, bool forcePlan, out bool existed)
+    {
+        existed = false;
+        var found = new List<LandmarkSpot>();
+        foreach (var m in instance.GetComponentsInChildren<LandmarkMarker>(true)) found.Add(new LandmarkSpot { Kind = m.Kind, Pos = m.transform.position });
+        if (found.Count > 0 && !forcePlan) { existed = true; return found; }
+
+        var entryT = instance.transform.Find("Level Entry");
+        var gateT = instance.transform.Find("Exit Gate");
+        if (entryT == null || gateT == null || corners == null || corners.Length < 2) return new List<LandmarkSpot>();
+        var zones = new List<(Vector3 pos, Vector3 forward)>();
+        var spawns = new List<Vector3>();
+        foreach (var z in instance.GetComponentsInChildren<WaveZone>(true).OrderBy(z => ZoneIndex(z.name)))
+        {
+            zones.Add((Sample(z.transform.position, 4f), z.transform.forward));
+            foreach (Transform c in z.transform) if (c.name.StartsWith("Spawn ")) spawns.Add(c.position);
+        }
+        return PlanLandmarks(level, corners, Sample(entryT.position, 4f), entryT.forward, Sample(gateT.position, 4f), gateT.forward, zones, spawns);
+    }
+
+    /// <summary>Ścieżka wejście-krata istniejącego poziomu w tymczasowej scenie (null, gdy brak).</summary>
+    public static Vector3[] PathOfInstance(GameObject instance)
+    {
+        var entryT = instance.transform.Find("Level Entry");
+        var gateT = instance.transform.Find("Exit Gate");
+        if (entryT == null || gateT == null) return null;
+        if (!NavMesh.SamplePosition(entryT.position, out var a, 4f, NavMesh.AllAreas) || !NavMesh.SamplePosition(gateT.position, out var b, 4f, NavMesh.AllAreas)) return null;
+        var path = new NavMeshPath();
+        if (!NavMesh.CalculatePath(a.position, b.position, NavMesh.AllAreas, path) || path.status != NavMeshPathStatus.PathComplete || path.corners.Length < 2) return null;
+        return path.corners;
+    }
+
+    /// <summary>Tylko landmarki, bez ruszania stref: planuje od nowa i nadpisuje `Landmark N` na poziomach 1-8.</summary>
+    [MenuItem("LD57/Wire P12 Landmarks (NADPISZ)")]
+    public static void RunLandmarks()
+    {
+        for (int level = 1; level <= 8; level++)
+        {
+            var path = $"{LevelsFolder}/Level {level}.prefab";
+            var prefab = Load(path);
+            if (prefab == null) { Debug.LogWarning($"[P1Levels] brak {path}"); continue; }
+            var instance = OpenLevelInTempScene(prefab, level, out var previousScene);
+            if (instance == null) continue;
+            List<LandmarkSpot> spots;
+            try { spots = LandmarksFromInstance(level, instance, PathOfInstance(instance), true, out _); }
+            finally { RestoreScene(previousScene); }
+            if (spots.Count == 0) { Debug.LogWarning($"[P1Levels] Level {level}: brak landmarków (brak ścieżki lub stref)"); continue; }
+            var root = PrefabUtility.LoadPrefabContents(path);
+            try
+            {
+                ApplyLandmarks(root, spots);
+                PrefabUtility.SaveAsPrefabAsset(root, path);
+                Debug.Log($"[P1Levels] Level {level}: {LandmarkSummary(spots)}, zapisane");
+            }
+            finally { PrefabUtility.UnloadPrefabContents(root); }
+        }
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
     }
 
     // ---------------------------------------------------------------- helpers

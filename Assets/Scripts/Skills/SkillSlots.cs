@@ -34,6 +34,7 @@ public class SkillSlots : MonoBehaviour
         pool = newPool;
         slots.Clear();
         SpaceSkill = null;
+        activeWheelIndex = 0;
     }
 
     private readonly List<SkillInstance> slots = new List<SkillInstance>(MaxSlots);
@@ -47,6 +48,40 @@ public class SkillSlots : MonoBehaviour
     public event System.Action<SkillInstance> OnSkillChanged;
 
     public bool HasFreeSlot => slots.Count < MaxSlots;
+
+    // --- Koło szybkiego wyboru (PPM): wszystkie posiadane skille poza spacją, w kolejności zdobycia.
+    private int activeWheelIndex;
+
+    /// <summary>Skille koła (PPM): to samo co sloty Q/E/R, bez spacji. Jedna instancja = jeden cooldown.</summary>
+    public IReadOnlyList<SkillInstance> Wheel => slots;
+
+    /// <summary>Indeks aktywnego skilla koła, zawsze w granicach koła (0 gdy puste).</summary>
+    public int ActiveWheelIndex
+    {
+        get
+        {
+            if (slots.Count == 0) return 0;
+            return Mathf.Clamp(activeWheelIndex, 0, slots.Count - 1);
+        }
+    }
+
+    /// <summary>Skill odpalany przez PPM; null gdy koło puste.</summary>
+    public SkillInstance WheelSkill => slots.Count == 0 ? null : slots[ActiveWheelIndex];
+
+    /// <summary>Zmiana aktywnego skilla koła; argument = nowy indeks.</summary>
+    public event System.Action<int> OnWheelChanged;
+
+    /// <summary>Przesuwa aktywny skill koła o dir (+1 następny, -1 poprzedni), z zawijaniem. Zwraca true, gdy indeks się zmienił.</summary>
+    public bool CycleWheel(int dir)
+    {
+        int n = slots.Count;
+        if (n <= 1 || dir == 0) return false;
+        int next = ((ActiveWheelIndex + dir) % n + n) % n;
+        if (next == activeWheelIndex) return false;
+        activeWheelIndex = next;
+        OnWheelChanged?.Invoke(next);
+        return true;
+    }
 
     public SkillInstance Find(SkillDefinition definition)
     {

@@ -26,6 +26,7 @@ public class AxeThrowSkill : ISkillBehaviour
     {
         var start = ctx.Origin.position;
         var axe = CreateAxe(ctx, start);
+        VoxelFxRecipes.AxeFlight(axe, ctx.TierIndex >= SkillDefinition.MaxTier);
         var outHits = new HashSet<Health>();
         var backHits = new HashSet<Health>();
         float range = ctx.Tier.Range;
@@ -41,7 +42,11 @@ public class AxeThrowSkill : ISkillBehaviour
             if (!returning)
             {
                 target = start + dir * range;
-                if (traveled >= range) returning = true;
+                if (traveled >= range)
+                {
+                    returning = true;
+                    VoxelFxRecipes.AxeTurn(pos);
+                }
             }
             else
             {
@@ -60,7 +65,11 @@ public class AxeThrowSkill : ISkillBehaviour
             var hits = Physics.OverlapSphere(axe.transform.position, HitRadius, ctx.EnemyLayers);
             var set = returning ? backHits : outHits;
             foreach (var col in hits)
+            {
+                int before = set.Count;
                 SkillHit.Apply(col, ctx, axe.transform.position, ctx.Tier.Damage, 0f, 0f, set);
+                if (set.Count > before) VoxelFxRecipes.AxeHit(axe.transform.position);
+            }
 
             yield return new WaitForFixedUpdate();
         }

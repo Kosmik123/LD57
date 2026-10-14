@@ -1,29 +1,30 @@
 using UnityEngine;
 
 /// <summary>
-/// Rozbryzg przy trafieniu wroga: kilka kulek w kolorze jego bryły, z grawitacją. Jeden ParticleSystem na scenę,
-/// cząstki emitowane przez Emit(EmitParams) z kolorem per trafienie.
+/// Rozbryzg przy trafieniu wroga: kilka kostek (VoxelFx) w kolorze jego bryły, z grawitacją, plus dwie jasne HDR.
 /// </summary>
 public static class HitSplash
 {
     private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
-    private static ParticleSystem system;
 
     public static void Burst(Vector3 position, Color color, int count = 10, float strength = 1f)
     {
-        var ps = System();
-        if (ps == null) return;
-        var ep = new ParticleSystem.EmitParams();
+        // kostki w kolorze wroga (lit, opadają) + 2 jasne HDR
+        var body = new Color(color.r, color.g, color.b, 1f);
         for (int i = 0; i < count; i++)
         {
             var dir = Random.onUnitSphere;
             dir.y = Mathf.Abs(dir.y) * 0.8f + 0.3f;
-            ep.position = position + dir * 0.15f;
-            ep.velocity = dir.normalized * Random.Range(2.5f, 5f) * strength;
-            ep.startColor = color;
-            ep.startSize = Random.Range(0.08f, 0.2f) * strength;
-            ep.startLifetime = Random.Range(0.25f, 0.45f);
-            ps.Emit(ep, 1);
+            VoxelFx.Emit(position + dir * 0.15f, dir.normalized * Random.Range(2.5f, 5f) * strength, body,
+                Random.Range(0.1f, 0.22f) * strength, Random.Range(0.3f, 0.55f), true, true);
+        }
+        var glow = new Color(color.r * 2.5f + 0.4f, color.g * 2.5f + 0.4f, color.b * 2.5f + 0.4f);
+        for (int i = 0; i < 2; i++)
+        {
+            var dir = Random.onUnitSphere;
+            dir.y = Mathf.Abs(dir.y);
+            VoxelFx.Emit(position + dir * 0.1f, dir.normalized * Random.Range(3f, 5.5f) * strength, glow,
+                Random.Range(0.07f, 0.12f) * strength, 0.3f, false, false);
         }
     }
 
@@ -39,32 +40,5 @@ public static class HitSplash
             if (m.HasProperty("_Color")) return m.color;
         }
         return new Color(0.4f, 0.9f, 0.3f);
-    }
-
-    private static ParticleSystem System()
-    {
-        if (system != null) return system;
-        var go = new GameObject("Hit Splash");
-        system = go.AddComponent<ParticleSystem>();
-        var main = system.main;
-        main.loop = false; main.playOnAwake = false; main.maxParticles = 400;
-        main.simulationSpace = ParticleSystemSimulationSpace.World;
-        main.gravityModifier = 1.2f;
-        main.startSpeed = 0f; main.startLifetime = 0.4f; main.startSize = 0.15f;
-        var emission = system.emission; emission.enabled = false;
-        var shape = system.shape; shape.enabled = false;
-        var col = system.colorOverLifetime; col.enabled = true;
-        var g = new Gradient();
-        g.SetKeys(new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
-                  new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(1f, 0.6f), new GradientAlphaKey(0f, 1f) });
-        col.color = g;
-        var size = system.sizeOverLifetime; size.enabled = true;
-        size.size = new ParticleSystem.MinMaxCurve(1f, AnimationCurve.Linear(0f, 1f, 1f, 0.3f));
-        var renderer = system.GetComponent<ParticleSystemRenderer>();
-        var shader = Shader.Find("Universal Render Pipeline/Particles/Unlit");
-        if (shader == null) shader = Shader.Find("Sprites/Default");
-        renderer.sharedMaterial = new Material(shader) { name = "HitSplash (runtime)" };
-        renderer.renderMode = ParticleSystemRenderMode.Billboard;
-        return system;
     }
 }

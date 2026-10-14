@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: WarCry
   m_EditorClassIdentifier: 
   DisplayName: Krzyk bojowy
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 662cd25979953a34a80c1002aeb91cd9, type: 3}
   Kind: 4
   UsesSpaceSlot: 0
   Tiers:

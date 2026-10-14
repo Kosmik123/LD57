@@ -54,6 +54,7 @@ public class PlayerSkillAnimator : MonoBehaviour
     private void SkillUser_OnSkillExecuted(SkillKind kind, SkillTier tier)
     {
         if (body == null) return;
+        if (player != null && !player.MeleeHitboxes) CastHandFlash(kind);
         ResetBody();
         current = DOTween.Sequence().SetTarget(body);
         switch (kind)
@@ -86,6 +87,21 @@ public class PlayerSkillAnimator : MonoBehaviour
                 return;
         }
         current.OnComplete(() => { body.localScale = baseScale; body.localRotation = baseRotation; });
+    }
+
+    /// <summary>Błysk w dłoni maga przy skillu (Blink ma własny efekt na starcie).</summary>
+    private void CastHandFlash(SkillKind kind)
+    {
+        Color c;
+        switch (kind)
+        {
+            case SkillKind.Fireball: c = new Color(1f, 0.55f, 0.15f); break;
+            case SkillKind.FrostNova: c = new Color(0.6f, 0.9f, 1f); break;
+            case SkillKind.ArcaneOrbs: c = new Color(0.7f, 0.4f, 1f); break;
+            case SkillKind.ChainLightning: c = new Color(0.6f, 0.8f, 1f); break;
+            default: return;
+        }
+        MageStylizedFx.CastFlash(transform, body, c);
     }
 
     private void Player_OnLanded()

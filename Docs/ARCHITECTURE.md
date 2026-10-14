@@ -281,3 +281,11 @@ z colliderów (`P1Wiring_NavMesh`).
   pająki-propy) z seeda = numer poziomu, bez colliderów, pod dzieckiem `Decor`; pola `*Prefab` do podmiany na modele.
 - **Audio otoczenia:** `AmbienceController` + `ProceduralAmbienceBank` (obiekt `Ambience`), miks per `OnLevelStarted`,
   cisza przed bossem na poziomie 8, wyciszenie po śmierci/wygranej; pola `AudioClip` do podmiany na nagrania.
+- **Koło skilli (runda 13):** `SkillSlots.Wheel` (posiadane skille Q/E/R w kolejności zdobycia), `ActiveWheelIndex`,
+  `WheelSkill`, `CycleWheel(int)`, `OnWheelChanged(int)`; `SkillUser`: PPM (`Input.GetMouseButtonDown(1)`) wykonuje
+  `WheelSkill` przez wspólne `TryExecute` (jeden cooldown na skill), rolka i Tab cyklują. Istniejące sygnatury bez zmian.
+- **Statystyki gracza:** `PlayerStats` (mnożnik obrażeń, kryt, lifesteal, kolce, prędkość, esencja) stosowany w
+  `SkillHit.Apply` i `DamagingBlade`; relikty (`RelicDefinition`/`RelicHolder`) i Furia (`FurySystem`) modyfikują `PlayerStats`.
+- **Boss:** obrażenia idą w `Health` nóg (`BossLeg`, 8 × 12 HP), `Health` bossa jest nietykalny i odbija sumę nóg;
+  ciało (`BossBodyHitbox`) przekierowuje ×0,5 na najbliższą nogę; zabicie przez `ChangeHealth` z wyłączoną nietykalnością
+  nadal kończy run (tylko na poziomie 8). `PlayerController.Root(seconds)` / `IsRooted` (sieć).

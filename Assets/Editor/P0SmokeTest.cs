@@ -109,6 +109,9 @@ public static partial class P0SmokeTest
         // Test gra w grę przez kilka minut: wycisz audio, żeby nie leciało na słuchawki.
         AudioListener.volume = 0f;
         WaveZone.InstantSpawnForTests = true; // bez strumienia: testy liczą i wybijają całą strefę naraz
+        LevelPopulation.DisabledForTests = true; // bez wrogów krążących po poziomie: testy liczą tylko strefy
+        BossEncounter.DisabledForTests = true; // boss do playtestów na poziomie 1 nie może kończyć runu w testach
+        EliteDirector.DisabledForTests = true; // elity i skrzynie (ekran reliktów pauzuje) poza testami
         var scenario = SessionState.GetString(ScenarioKey, "p0");
         steps = scenario == "full" ? BuildFullSteps() : scenario == "combat" ? BuildCombatSteps() : BuildSteps();
         stepIndex = -1;

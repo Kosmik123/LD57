@@ -44,7 +44,7 @@ public class SkillHud : MonoBehaviour
                 key = SkillSlots.SpaceSlotKey;
                 skill = slots.SpaceSkill;
             }
-            Refresh(views[i], skill, key);
+            Refresh(views[i], skill, key, skill != null && skill == slots.WheelSkill);
             TrackReady(i, skill);
         }
 
@@ -72,15 +72,28 @@ public class SkillHud : MonoBehaviour
         wasOnCooldown[i] = onCooldown;
     }
 
-    private static void Refresh(SlotView v, SkillInstance skill, KeyCode key)
+    private static readonly Color NormalBg = new Color(0.1f, 0.1f, 0.12f, 0.8f);
+    private static readonly Color WheelBg = new Color(0.2f, 0.16f, 0.07f, 0.92f);
+
+    /// <summary>Slot z aktywnym skillem koła (PPM) dostaje złote tło i dopisek „PPM” przy klawiszu.</summary>
+    private static void Refresh(SlotView v, SkillInstance skill, KeyCode key, bool onWheel)
     {
         if (v == null) return;
-        if (v.key != null) v.key.text = key == KeyCode.Space ? "SPACE" : key.ToString();
         bool has = skill != null;
+        if (v.key != null)
+        {
+            string label = key == KeyCode.Space ? "SPACE" : key.ToString();
+            if (onWheel) label += " <size=65%><color=#FFD966>PPM</color></size>";
+            if (v.key.text != label) v.key.text = label;
+        }
+        if (v.root != null && v.root.TryGetComponent<Image>(out var bg))
+            bg.color = onWheel ? WheelBg : NormalBg;
         if (v.icon != null)
         {
-            v.icon.enabled = has && skill.Definition.Icon != null;
-            if (has) v.icon.sprite = skill.Definition.Icon;
+            var sprite = has ? SkillIcons.Get(skill.Definition) : null;
+            v.icon.preserveAspect = true;
+            v.icon.enabled = sprite != null;
+            if (sprite != null) v.icon.sprite = sprite;
         }
         if (v.tier != null) v.tier.text = has ? Roman[Mathf.Clamp(skill.Tier, 0, 3)] : "";
         if (v.cooldownFill != null)

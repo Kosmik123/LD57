@@ -31,7 +31,7 @@ public static class SkillHit
         if (already != null && !already.Add(health)) return;
         if (!health.CompareTag("Enemy") && !col.CompareTag("Enemy")) return;
 
-        if (damage > 0) health.ChangeHealth(-damage);
+        if (damage > 0) health.ChangeHealth(-PlayerStats.Scale(damage, health)); // mnożnik obrażeń, kryt, Łowca elit
 
         var agent = health.GetComponentInParent<NavMeshAgent>();
         var dir = health.transform.position - from;

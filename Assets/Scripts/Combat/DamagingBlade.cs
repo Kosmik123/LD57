@@ -39,7 +39,9 @@ public class DamagingBlade : MonoBehaviour
         if (health == null || !alreadyHit.Add(health))
             return;
 
-        health.ChangeHealth(-damage);
+        // ostrze gracza (rani tag Enemy): mnożnik obrażeń, kryt, Łowca elit z PlayerStats
+        int dealt = System.Array.IndexOf(damagedTags, "Enemy") >= 0 ? PlayerStats.Scale(damage, health) : damage;
+        health.ChangeHealth(-dealt);
         OnHit?.Invoke(otherCollider.ClosestPoint(transform.position));
         ApplyKnockback(health.gameObject, body);
     }

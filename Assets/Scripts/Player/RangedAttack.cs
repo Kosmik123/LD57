@@ -11,8 +11,8 @@ public class RangedAttack : MonoBehaviour
     private Transform body;
     [SerializeField] private int damage = 2;
     [SerializeField] private float cooldown = 0.35f;
-    [SerializeField] private float speed = 18f;
-    [SerializeField] private float range = 12f;
+    [SerializeField] private float speed = 22f;
+    [SerializeField] private float range = 26f;
     [SerializeField] private float height = 0.9f;
     [SerializeField] private Color boltColor = new Color(0.45f, 0.65f, 1f);
 
@@ -52,7 +52,9 @@ public class RangedAttack : MonoBehaviour
         var basePos = body != null ? body.position : transform.position;
         var origin = basePos + Vector3.up * height + dir * 0.4f;
 
-        PlayerBoltPool.Get().Launch(transform, origin, dir, speed, range, damage, boltColor);
+        // Minimum zasięgu/prędkości wymuszone w kodzie (prefab ma starsze wartości 18 m/s, 12 m).
+        PlayerBoltPool.Get().Launch(transform, origin, dir, Mathf.Max(speed, 22f), Mathf.Max(range, 26f), damage, boltColor, 0.3f);
         Sfx.Play(SfxKind.Shot);
+        MageStylizedFx.CastFlash(transform, body, boltColor); // błysk w dłoni + 3 iskry
     }
 }

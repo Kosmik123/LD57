@@ -17,12 +17,22 @@ public class SpiderAnimator : MonoBehaviour
     [SerializeField] private float meleeCrouch = 0.75f;
     [SerializeField] private float meleeCrouchSeconds = 0.3f;
 
+    [Header("Wspinaczka i bieg po ścianie")]
+    [SerializeField, Tooltip("Ciało nad powierzchnią (m), nogi rozłożone szeroko.")] private float climbBodyLift = 0.15f;
+    [SerializeField] private float climbSpread = 20f;
+    [SerializeField] private float climbAmplitude = 40f;
+    [SerializeField, Tooltip("Szybki cykl chodu po ścianie (Hz).")] private float climbFrequency = 10f;
+    [SerializeField, Tooltip("Rozłożenie nóg przy lądowaniu po zeskoku (stopnie), potem powrót do 0.")] private float landingSpread = 30f;
+    [SerializeField, Tooltip("Mnożnik częstotliwości nóg podczas biegu po ścianie (WallWalk).")] private float wallRunLegBoost = 1.35f;
+    [SerializeField, Tooltip("Błysk oczu po wykryciu gracza: skala i czas (s).")] private float eyeFlashScale = 2.2f;
+    [SerializeField] private float eyeFlashSeconds = 0.4f;
+
     private VisualRig rig;
     private SpiderController spider;
     private EnemyMeleeAttack melee;
     private SpiderController.State? last;
-    private float fold, phase, walkBlend;
-    private Tween foldTween;
+    private float fold, phase, walkBlend, crawlBlend;
+    private Tween foldTween, eyeFlashTween;
 
     private void Awake()
     {
@@ -35,12 +45,24 @@ public class SpiderAnimator : MonoBehaviour
     private void OnEnable()
     {
         if (melee != null) { melee.OnWindupStarted += Windup; melee.OnAttackFinished += Finished; }
+        if (spider != null) spider.OnSpotted += FlashEyes;
     }
 
     private void OnDisable()
     {
         if (melee != null) { melee.OnWindupStarted -= Windup; melee.OnAttackFinished -= Finished; }
+        if (spider != null) spider.OnSpotted -= FlashEyes;
         foldTween?.Kill();
+        eyeFlashTween?.Kill();
+    }
+
+    /// <summary>Wykrycie gracza: oczy rozbłyskują i wracają (Visual/Eyes to 2 świecące bryły EyeL/EyeR).</summary>
+    private void FlashEyes()
+    {
+        if (!rig.HasVisual) return;
+        rig.SetEyes(eyeFlashScale, 0.08f);
+        eyeFlashTween?.Kill();
+        eyeFlashTween = DOVirtual.DelayedCall(eyeFlashSeconds, () => { if (rig != null) rig.SetEyes(1f, 0.25f); });
     }
 
     private void Update()
@@ -51,10 +73,15 @@ public class SpiderAnimator : MonoBehaviour
 
         float dt = Time.deltaTime;
         float k = Mathf.Clamp(rig.Speed / referenceSpeed, 0f, 2f);
-        bool walking = rig.Speed > 0.3f && (spider == null || spider.Current == SpiderController.State.Chasing);
+        bool crawling = spider != null && spider.OnSurface; // Climbing, WallWalk i Perched na ścianie: ciało 0,15 m nad powierzchnią
+        bool wallRun = spider != null && spider.Current == SpiderController.State.WallWalk;
+        bool walking = rig.Speed > 0.3f && (spider == null || spider.Current == SpiderController.State.Chasing || crawling);
         walkBlend = Mathf.MoveTowards(walkBlend, walking ? 1f : 0f, dt * 6f);
-        phase += Mathf.PI * 2f * legFrequency * k * dt;
-        float amp = legAmplitude * k * walkBlend;
+        crawlBlend = Mathf.MoveTowards(crawlBlend, crawling ? 1f : 0f, dt * 5f);
+        // ciało przyklejone do powierzchni (0,15 m nad nią), po wyjściu na półkę wraca płynnie do 0
+        rig.ProcOffset = new Vector3(0f, climbBodyLift * crawlBlend, 0f);
+        phase += Mathf.PI * 2f * Mathf.Lerp(legFrequency * k, climbFrequency * (wallRun ? wallRunLegBoost : 1f), crawlBlend) * dt;
+        float amp = Mathf.Lerp(legAmplitude * k, climbAmplitude, crawlBlend) * walkBlend;
         for (int i = 0; i < VisualRig.MaxLegs; i++)
         {
             float parity = (i & 1) == 0 ? 0f : Mathf.PI;
@@ -69,18 +96,44 @@ public class SpiderAnimator : MonoBehaviour
         switch (state)
         {
             case SpiderController.State.Perched:
-                rig.HoldPose(perchedSquash, 0.3f);
-                TweenFold(perchedFold, 0.3f);
+                if (spider != null && spider.OnSurface)
+                {
+                    // na ścianie: nogi rozłożone na powierzchni, bez przyczajenia sufitowego
+                    rig.HoldPose(1f, 0.2f);
+                    TweenFold(climbSpread, 0.25f);
+                }
+                else
+                {
+                    rig.HoldPose(perchedSquash, 0.3f);
+                    TweenFold(perchedFold, 0.3f);
+                }
                 break;
             case SpiderController.State.Dropping:
                 rig.HoldPose(dropStretch, 0.15f);
                 TweenFold(dropFold, 0.15f);
                 break;
+            case SpiderController.State.Climbing:
+            case SpiderController.State.WallWalk:
+                rig.HoldPose(1f, 0.1f);
+                TweenFold(climbSpread, 0.2f);
+                break;
+            case SpiderController.State.Leap:
+                rig.HoldPose(1f, 0.05f);
+                TweenFold(dropFold * 0.6f, 0.3f); // nogi podkulone przed i w trakcie skoku
+                break;
             default:
                 rig.HoldPose(1f, 0.05f);
-                TweenFold(0f, 0.2f);
                 if (prev == SpiderController.State.Dropping)
+                {
+                    // lądowanie: nogi rozłożone, potem wracają do pozy; squash
+                    foldTween?.Kill();
+                    foldTween = DOTween.Sequence()
+                        .Append(DOTween.To(() => fold, v => fold = v, landingSpread, 0.08f).SetEase(Ease.OutQuad))
+                        .Append(DOTween.To(() => fold, v => fold = v, 0f, 0.35f).SetEase(Ease.OutQuad));
                     rig.Squash(landingSquash, 0f, 0.4f, Ease.OutElastic);
+                }
+                else
+                    TweenFold(0f, prev == SpiderController.State.Climbing ? 0.5f : 0.2f);
                 break;
         }
     }

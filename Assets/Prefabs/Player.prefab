@@ -60,6 +60,9 @@ GameObject:
   - component: {fileID: 4832534534077039496}
   - component: {fileID: 3582746491633390791}
   - component: {fileID: 5264062573342014166}
+  - component: {fileID: 7017632280291625466}
+  - component: {fileID: 3106764649841749430}
+  - component: {fileID: 7352747773040813830}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -381,6 +384,67 @@ MonoBehaviour:
   range: 12
   height: 0.9
   boltColor: {r: 0.45, g: 0.65, b: 1, a: 1}
+--- !u!114 &7017632280291625466
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1231444528877791776}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be7b498b504ce77478de8f0fa7f3cebb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  critMultiplier: 2
+  thornsRadius: 3
+  heartDetectRadius: 3
+  xpPerEssence: 2
+--- !u!114 &3106764649841749430
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1231444528877791776}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c744cf9d6e1d91543864284cd670fbc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pool:
+  - {fileID: 11400000, guid: 7dbf240cc22edf54cba1b5fd447bac98, type: 2}
+  - {fileID: 11400000, guid: 4d64e9717a0036745a3a7640223e53a2, type: 2}
+  - {fileID: 11400000, guid: 11a23b5ff60e9e449bb90c67532f529e, type: 2}
+  - {fileID: 11400000, guid: ec7de459dce5fc14fa24e1022b641f84, type: 2}
+  - {fileID: 11400000, guid: 660fdea2d659e044d8850d8cea6c9575, type: 2}
+  - {fileID: 11400000, guid: ab6c39b9ad06a314a80f70cd2f4a1396, type: 2}
+  - {fileID: 11400000, guid: 51fadfee7d948544e99c71e675f0bff9, type: 2}
+  - {fileID: 11400000, guid: 70686fc02957cbd42998a5de77857838, type: 2}
+  - {fileID: 11400000, guid: c1a88c9fc759d4547888a147e3d706bc, type: 2}
+  - {fileID: 11400000, guid: bac77c67689c9794ea537208afc6af72, type: 2}
+  stats: {fileID: 7017632280291625466}
+  skillUser: {fileID: 8168653945870095972}
+  skillSlots: {fileID: 3968173089315062724}
+--- !u!114 &7352747773040813830
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1231444528877791776}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4f4f950380024a468155980b4cb7b69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stats: {fileID: 7017632280291625466}
+  killsRequired: 8
+  windowSeconds: 4
+  duration: 6
+  cooldown: 10
+  damageMultiplier: 1.35
+  speedMultiplier: 1.2
 --- !u!1 &1586734361900058663
 GameObject:
   m_ObjectHideFlags: 0

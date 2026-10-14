@@ -3,7 +3,8 @@ using UnityEngine;
 public enum SfxKind
 {
     Dash, Attack, Hit, PlayerHurt, Windup, Shot, GateOpen, Heart, LevelUp, CardPick,
-    WaveCleared, Death, Win, BossTelegraph, EnemyDie
+    WaveCleared, Death, Win, BossTelegraph, EnemyDie,
+    Cast // rzut zaklęcia maga (zamiast ciachnięcia miecza)
 }
 
 /// <summary>Statyczny punkt wejścia dla efektów dźwiękowych. Bez ProceduralSfxBank w scenie nic nie robi.</summary>

@@ -31,6 +31,12 @@ public class BlinkSkill : ISkillBehaviour
         if (!FindTarget(player.transform, start, dir, ctx.Tier.Range, out var target)) return;
 
         SpawnGhost(player.transform, ctx.Runner);
+        // start: implozja kostek do środka gracza, linia gasnących kostek do celu
+        var chest = start + Vector3.up * 0.9f;
+        MageStylizedFx.Dissolve(start, Arcane, 14); // sylwetka rozpada się
+        MageStylizedFx.Implode(chest, Arcane, 20, 1.8f, 0.35f);
+        MageStylizedFx.Flash(chest, Arcane, 1.1f);
+        MageStylizedFx.Line(chest, target + Vector3.up * 0.9f, Arcane, 10, 0.3f);
         Sfx.Play(SfxKind.Dash);
         bool evolved = ctx.TierIndex >= SkillDefinition.MaxTier;
         if (evolved) Blast(ctx, start);
@@ -76,12 +82,12 @@ public class BlinkSkill : ISkillBehaviour
     {
         var ground = WorldVfx.GroundBelow(pos);
         WorldVfx.Ring(ground, BlastRadius, Arcane, 0.35f, 0.7f, false);
-        WorldVfx.FlashLight(pos + Vector3.up * 0.8f, Arcane, 2.5f, 5f, 0.25f);
-        for (int i = 0; i < 6; i++)
-        {
-            var v = Random.onUnitSphere; v.y = Mathf.Abs(v.y) + 0.3f;
-            WorldVfx.Shard(pos + Vector3.up * 0.5f, v * Random.Range(1.5f, 3f), Arcane, Random.Range(0.2f, 0.4f), Random.Range(0.3f, 0.5f));
-        }
+        MageStylizedFx.Burst(pos + Vector3.up * 0.6f, Arcane, 24, 0.18f, 6f, 0.6f);
+        // rozkwit: 3 pierścienie w górę jeden nad drugim (0, 0,6, 1,2 m) co 0,05 s
+        float ringRadius = BlastRadius * 1.3f;
+        MageStylizedFx.Repeat(0.1f, 0.05f, k => MageStylizedFx.Ring(ground + Vector3.up * (0.6f * Mathf.RoundToInt(k * 2f)), ringRadius, Arcane, 20));
+        MageStylizedFx.GroundGlow(ground, BlastRadius, Arcane, 0.8f, 0.6f);
+        MageStylizedFx.Flash(pos + Vector3.up * 0.8f, Arcane, 1.3f);
         var already = new HashSet<Health>();
         foreach (var col in Physics.OverlapSphere(pos, BlastRadius, ctx.EnemyLayers))
             SkillHit.Apply(col, ctx, pos, ctx.Tier.Damage, 0f, 0f, already);

@@ -121,4 +121,53 @@ public static class ProceduralTextures
             }
         return px;
     }
+
+    /// <summary>Albedo mchu/trawy (zielone, kafelkowalne): fBm + drobne kepki + ciemne plamy. Mnozone przez _TopColor.</summary>
+    public static Color32[] MossAlbedo(int size = DefaultSize, int seed = 4242)
+    {
+        var px = new Color32[size * size];
+        for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float u = x / (float)size, v = y / (float)size;
+                float n = Fbm(u, v, 6, 5, seed);
+                float tuft = Fbm(u, v, 40, 2, seed + 9);
+                float patch = Fbm(u, v, 3, 3, seed + 21);
+                float val = 0.45f + n * 0.4f + (tuft - 0.5f) * 0.25f - Mathf.Clamp01(patch - 0.6f) * 0.5f;
+                val = Mathf.Clamp01(val);
+                float yellow = Mathf.Clamp01(Fbm(u, v, 4, 3, seed + 33) - 0.45f) * 0.6f;   // przebarwienia ku zolci
+                px[y * size + x] = new Color32(
+                    (byte)Mathf.RoundToInt(Mathf.Clamp01(val * (0.75f + yellow)) * 255f),
+                    (byte)Mathf.RoundToInt(Mathf.Clamp01(val) * 255f),
+                    (byte)Mathf.RoundToInt(Mathf.Clamp01(val * 0.55f) * 255f), 255);
+            }
+        return px;
+    }
+
+    /// <summary>Skala z jasnobłekitnymi zylami (wariant RockAlbedo): szara baza + swiecace zyly o barwie cyjan.</summary>
+    public static Color32[] RockVeinsAlbedo(int size = DefaultSize, int seed = 1337)
+    {
+        var px = new Color32[size * size];
+        for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float u = x / (float)size, v = y / (float)size;
+                float n = Fbm(u, v, 4, 5, seed);
+                float val = 0.35f + n * 0.5f;
+                float pore = Fbm(u, v, 32, 2, seed + 13);
+                if (pore > 0.68f) val -= (pore - 0.68f) * 2.2f;
+                // zyly kryształu: waskie linie wokol zera dwoch zaburzonych szumow
+                float v1 = 1f - Mathf.Clamp01(Mathf.Abs(Fbm(u, v, 3, 3, seed + 71) - 0.5f) * 22f);
+                float v2 = 1f - Mathf.Clamp01(Mathf.Abs(Fbm(u, v, 5, 3, seed + 97) - 0.5f) * 30f);
+                float vein = Mathf.Clamp01(v1 * v1 + v2 * v2 * 0.7f);
+                var r = Mathf.Lerp(val, 0.35f, vein);
+                var g = Mathf.Lerp(val, 0.85f, vein);
+                var b = Mathf.Lerp(val, 1.0f, vein);
+                px[y * size + x] = new Color32(
+                    (byte)Mathf.RoundToInt(Mathf.Clamp01(r) * 255f),
+                    (byte)Mathf.RoundToInt(Mathf.Clamp01(g) * 255f),
+                    (byte)Mathf.RoundToInt(Mathf.Clamp01(b) * 255f), 255);
+            }
+        return px;
+    }
 }

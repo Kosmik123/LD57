@@ -102,6 +102,12 @@ public class GameManager : MonoBehaviour
     {
         if (IsRunOver || !enemy.IsBoss)
             return;
+        // Boss do playtestów na wcześniejszym poziomie (BossEncounter) nie kończy runu: wygrana tylko na dnie (poziom 8).
+        if (LevelManager.Instance != null && LevelManager.Instance.CurrentLevel < 8)
+        {
+            Debug.Log($"[GameManager] boss pokonany na poziomie {LevelManager.Instance.CurrentLevel}: run trwa dalej");
+            return;
+        }
         IsRunOver = true;
         Time.timeScale = 0;
         GameEvents.RaiseRunWon();

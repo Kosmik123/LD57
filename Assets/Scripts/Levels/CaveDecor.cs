@@ -43,6 +43,7 @@ public class CaveDecor : MonoBehaviour
         if (colliders.Count == 0) return;
         CollectAnchors(out Vector3 arena);
         if (anchors.Count == 0) return;
+        ComputePath();   // os sciezki: korytarz 2,5 m wolny od propow (takze szkielet i kly gniazda)
 
         rng = new System.Random(level);
         decor = new GameObject(DecorName).transform;
@@ -88,10 +89,109 @@ public class CaveDecor : MonoBehaviour
                 break;
         }
 
-        // Propy ogolne po konkretnych elementach poziomu (nie zmieniaja sekwencji losowania tamtych).
-        for (int i = 0; i < (level <= 4 ? 10 : 6); i++) Stalagmite();
-        for (int i = 0; i < 6; i++) RubblePile();
         if (level == 8) NestFangs(arena);
+        // Propy podlogowe tylko jako klastry i landmarki (DecorLayout); dawne losowe stalagmity i rumowiska weszly do klastrow.
+        Nature(level);   // biomy: las 1-2, skaly 3-4, krysztaly 5-6, otchlan 7-8
+    }
+
+    // ------------------------------------------------------------ biomy: klastry propow, landmarki (rozklad w DecorLayout)
+
+    private const double NatureBudgetMs = 60.0; // jednorazowo przy starcie poziomu: plan (do 30 ms) + budowa obiektow
+
+    private Vector3[] pathPoints;
+
+    /// <summary>
+    /// Gradient glebokosci: 1-2 las, 3-4 skaly (glazy, uschniete drzewa), 5-6 krysztaly, 7-8 otchlan (kly, kokony, pajeczyny).
+    /// Zamiast rozsiewu pojedynczych obiektow: klastry hero + srednie + male w odstepach Poissona po calym NavMeshu poziomu,
+    /// landmark (LandmarkMarker) przy wejsciu, kracie i kazdej strefie, korytarz 2,5 m od osi sciezki wolny od propow wyzszych niz 0,5 m.
+    /// Raport `[Decor]` w logu raz na poziom. Budzet 60 ms; po przekroczeniu reszta propow jest pomijana (warning z liczba).
+    /// </summary>
+    private void Nature(int level)
+    {
+        var biome = DecorLayout.BiomeOf(level);
+        DecorPrimitives.WarmUpNature(DecorLayout.TypesFor(biome));   // siatki i materialy przed zegarem budzetu
+        var clock = System.Diagnostics.Stopwatch.StartNew();
+
+        var entry = GetComponentInChildren<LevelEntry>(true);
+        var markers = GetComponentsInChildren<LandmarkMarker>(true);
+        var landmarks = new Vector3[markers.Length];
+        for (int i = 0; i < markers.Length; i++) landmarks[i] = markers[i].transform.position;
+
+        var prm = new DecorLayout.Params
+        {
+            Level = level,
+            Biome = biome,
+            LevelY = entry != null ? entry.transform.position.y : anchors[0].y,
+            Path = pathPoints,
+            Anchors = anchors.ToArray(),
+            Fixtures = CollectFixtures(),
+            LandmarkPositions = landmarks,
+            Clearance = CeilingClearance,
+            Rng = new System.Random(level * 7919 + 13),   // osobny generator: nie zmienia losowan webow i kokonow
+            Clock = clock,
+        };
+        var res = DecorLayout.Plan(prm);
+
+        int built = 0;
+        for (; built < res.Props.Count; built++)
+        {
+            if (clock.Elapsed.TotalMilliseconds > NatureBudgetMs) break;
+            BuildProp(res.Props[built]);
+        }
+        clock.Stop();
+        int skipped = res.Props.Count - built;
+        if (skipped > 0)
+            Debug.LogWarning($"[Decor] Level {level}: budzet {NatureBudgetMs:F0} ms przekroczony ({clock.Elapsed.TotalMilliseconds:F0} ms), pominieto {skipped} z {res.Props.Count} propow");
+        Debug.Log(DecorLayout.Report(res, DecorLayout.Measure(res, built), clock.Elapsed.TotalMilliseconds));
+    }
+
+    private void BuildProp(PropPlan plan)
+    {
+        var go = DecorPrimitives.Prop(plan.Type, plan.Variant, plan.Scale);
+        go.transform.SetParent(decor, false);
+        go.transform.SetPositionAndRotation(plan.Pos, Quaternion.Euler(0f, plan.Yaw, 0f));
+    }
+
+    /// <summary>Zrodla swiatla poziomu (pochodnie, grzyby, krysztaly): klastry nie staja na nich ani w ich najblizszym sasiedztwie.</summary>
+    private Vector3[] CollectFixtures()
+    {
+        var list = new List<Vector3>();
+        foreach (Transform child in transform)
+        {
+            string n = child.name;
+            if (n.StartsWith("Torch ") || n.StartsWith("Mushrooms ") || n.StartsWith("Crystal ")) list.Add(child.position);
+        }
+        return list.ToArray();
+    }
+
+    /// <summary>Odleglosc od punktu w gore do najblizszego sufitu (MeshCollider bez Rigidbody, takze poziomu nad nami); float.MaxValue = brak.</summary>
+    private float CeilingClearance(Vector3 p)
+    {
+        bool prev = Physics.queriesHitBackfaces;
+        Physics.queriesHitBackfaces = true;
+        var hits = Physics.RaycastAll(p + Vector3.up * 0.3f, Vector3.up, 14f, ~0, QueryTriggerInteraction.Ignore);
+        Physics.queriesHitBackfaces = prev;
+        float best = float.MaxValue;
+        foreach (var h in hits)
+        {
+            if (!(h.collider is MeshCollider) || h.collider.attachedRigidbody != null) continue;
+            best = Mathf.Min(best, h.distance + 0.3f);
+        }
+        return best;
+    }
+
+    /// <summary>Os sciezki wejscie-krata z NavMeshu; gdy sie nie da, lamana przez kotwice (wejscie, strefy, krata).</summary>
+    private void ComputePath()
+    {
+        pathPoints = anchors.ToArray();
+        var entry = GetComponentInChildren<LevelEntry>(true);
+        var gate = GetComponentInChildren<ExitGate>(true);
+        if (entry == null || gate == null) return;
+        if (!NavMesh.SamplePosition(entry.transform.position, out NavMeshHit a, 4f, NavMesh.AllAreas)) return;
+        if (!NavMesh.SamplePosition(gate.transform.position, out NavMeshHit b, 4f, NavMesh.AllAreas)) return;
+        var path = new NavMeshPath();
+        if (NavMesh.CalculatePath(a.position, b.position, NavMesh.AllAreas, path) && path.status == NavMeshPathStatus.PathComplete && path.corners.Length >= 2)
+            pathPoints = path.corners;
     }
 
     // ------------------------------------------------------------ zbieranie danych poziomu
@@ -271,6 +371,7 @@ public class CaveDecor : MonoBehaviour
             float ang = Rand(0f, Mathf.PI * 2f), dist = Rand(3f, 6f);
             var q = entry + new Vector3(Mathf.Cos(ang), 0f, Mathf.Sin(ang)) * dist;
             if (!NavMesh.SamplePosition(q, out NavMeshHit nh, 2f, NavMesh.AllAreas)) continue;
+            if (DecorLayout.PathDistance(pathPoints, nh.position) < DecorLayout.CorridorHalfWidth) continue;   // miecz ma 1,25 m: nie w korytarzu
             var go = Make(skeletonPrefab, DecorPrimitives.Skeleton);
             go.transform.SetPositionAndRotation(nh.position + Vector3.up * 0.02f, Quaternion.Euler(0f, Rand(0f, 360f), 0f));
             return;
@@ -312,28 +413,6 @@ public class CaveDecor : MonoBehaviour
         holder.gameObject.AddComponent<DecorSway>().Configure(Rand(4f, 8f), Rand(0.8f, 1.4f), Rand(0f, 6.28f));
     }
 
-    /// <summary>Stalagmit przy scianie: stozek 0,5-1,8 m, 0,4-0,9 m od najblizszej sciany (8 kierunkow poziomych, do 3 m).</summary>
-    private void Stalagmite()
-    {
-        for (int t = 0; t < TriesPerItem; t++)
-        {
-            if (!FloorPoint(anchors, 14f, out Vector3 p)) return;
-            if (!NearestWallDir(p, 3f, out Vector3 d, out float dist) || dist < 0.9f) continue;
-            float h = Rand(0.5f, 1.8f);
-            var go = Make(null, () => DecorPrimitives.Stalagmite(h, rng));
-            var pos = p + d * (dist - Rand(0.4f, 0.9f));
-            go.transform.SetPositionAndRotation(new Vector3(pos.x, p.y, pos.z), Quaternion.Euler(0f, Rand(0f, 360f), 0f));
-            return;
-        }
-    }
-
-    private void RubblePile()
-    {
-        if (!FloorPoint(anchors, 14f, out Vector3 p)) return;
-        var go = Make(null, () => DecorPrimitives.Rubble(rng));
-        go.transform.SetPositionAndRotation(p, Quaternion.Euler(0f, Rand(0f, 360f), 0f));
-    }
-
     /// <summary>8 kielkow gniazda w pierscieniu wokol areny (przy scianie, gdy jest w zasiegu 10 m).</summary>
     private void NestFangs(Vector3 arena)
     {
@@ -347,23 +426,11 @@ public class CaveDecor : MonoBehaviour
             if (r < 2.5f) continue;
             var q = nh.position + d * r;
             if (NavMesh.SamplePosition(q, out NavMeshHit fh, 2.5f, NavMesh.AllAreas)) q = fh.position; else q.y = nh.position.y;
+            if (DecorLayout.PathDistance(pathPoints, q) < DecorLayout.CorridorHalfWidth) continue;   // kiel 2-3 m: nie w korytarzu
             float height = Rand(2f, 3f), width = Rand(0.25f, 0.4f);
             var go = Make(null, () => DecorPrimitives.Fang(height, width));
             go.transform.SetPositionAndRotation(q, Quaternion.Euler(Rand(-8f, 8f), Rand(0f, 360f), Rand(-8f, 8f)));
         }
-    }
-
-    private bool NearestWallDir(Vector3 floor, float max, out Vector3 dir, out float dist)
-    {
-        dir = Vector3.forward; dist = float.MaxValue;
-        for (int k = 0; k < 8; k++)
-        {
-            float a = k * 45f * Mathf.Deg2Rad;
-            var d = new Vector3(Mathf.Cos(a), 0f, Mathf.Sin(a));
-            if (Cast(floor + Vector3.up * 1f, d, max, out RaycastHit h) && Mathf.Abs(h.normal.y) < 0.5f && h.distance < dist)
-            { dist = h.distance; dir = d; }
-        }
-        return dist < float.MaxValue;
     }
 
     private void Nest(Vector3 arena)

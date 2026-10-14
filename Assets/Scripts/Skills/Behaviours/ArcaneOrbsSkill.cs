@@ -15,7 +15,6 @@ public class ArcaneOrbsSkill : ISkillBehaviour
     private const float ShotInterval = 1f;
     private const float ShotRange = 10f;
     private static readonly Color Violet = new Color(0.7f, 0.4f, 1f);
-    private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
 
     public void Execute(SkillContext ctx)
     {
@@ -30,12 +29,9 @@ public class ArcaneOrbsSkill : ISkillBehaviour
         float duration = Mathf.Max(0.5f, ctx.Tier.Duration);
         var origin = ctx.Origin;
 
-        var material = SwordTrail.CreateTransparentMaterial("Arcane Orb (runtime)", Color.white);
-        var block = new MaterialPropertyBlock();
-        block.SetColor(BaseColorId, Violet);
         var orbs = new Transform[count];
         for (int i = 0; i < count; i++)
-            orbs[i] = CreateOrb(material, block);
+            orbs[i] = CreateOrb();
         SkillHit.SpawnEffect(ctx, origin.position, Quaternion.identity);
         Sfx.Play(SfxKind.LevelUp, origin.position, 0.5f);
 
@@ -53,7 +49,7 @@ public class ArcaneOrbsSkill : ISkillBehaviour
                 float a = (angle + 360f * i / count) * Mathf.Deg2Rad;
                 var pos = center + new Vector3(Mathf.Cos(a), 0f, Mathf.Sin(a)) * radius;
                 orbs[i].position = pos;
-                Hit(ctx, pos, cooldowns);
+                Hit(ctx, pos, cooldowns, orbs[i]);
             }
 
             if (shoots && t >= nextShot)
@@ -67,41 +63,16 @@ public class ArcaneOrbsSkill : ISkillBehaviour
 
         foreach (var orb in orbs)
             if (orb != null) Object.Destroy(orb.gameObject);
-        Object.Destroy(material);
     }
 
-    private static Transform CreateOrb(Material material, MaterialPropertyBlock block)
+    private static Transform CreateOrb()
     {
-        var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        go.name = "Arcane Orb";
-        Object.Destroy(go.GetComponent<Collider>());
-        go.transform.localScale = Vector3.one * 0.35f;
-        var mr = go.GetComponent<MeshRenderer>();
-        mr.sharedMaterial = material;
-        mr.SetPropertyBlock(block);
-        mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-        mr.receiveShadows = false;
-
-        var trail = go.AddComponent<TrailRenderer>();
-        trail.time = 0.2f;
-        trail.widthMultiplier = 0.3f;
-        trail.sharedMaterial = material;
-        trail.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-        var g = new Gradient();
-        g.SetKeys(new[] { new GradientColorKey(Violet, 0f), new GradientColorKey(Violet, 1f) },
-                  new[] { new GradientAlphaKey(0.8f, 0f), new GradientAlphaKey(0f, 1f) });
-        trail.colorGradient = g;
-
-        var light = go.AddComponent<Light>();
-        light.type = LightType.Point;
-        light.color = Violet;
-        light.intensity = 1.2f;
-        light.range = 2.5f;
-        light.shadows = LightShadows.None;
+        var go = new GameObject("Arcane Orb");
+        MageStylizedFx.OrbVisual(go.transform, Violet, 0.36f);
         return go.transform;
     }
 
-    private static void Hit(SkillContext ctx, Vector3 pos, Dictionary<Health, float> cooldowns)
+    private static void Hit(SkillContext ctx, Vector3 pos, Dictionary<Health, float> cooldowns, Transform orb)
     {
         foreach (var col in Physics.OverlapSphere(pos, HitRadius, ctx.EnemyLayers))
         {
@@ -111,7 +82,9 @@ public class ArcaneOrbsSkill : ISkillBehaviour
             if (!health.CompareTag("Enemy") && !col.CompareTag("Enemy")) continue;
             cooldowns[health] = Time.time + PerEnemyCooldown;
             SkillHit.Apply(col, ctx, pos, ctx.Tier.Damage, 0f, 0f, null);
-            HitSplash.Burst(pos, Violet, 6);
+            MageStylizedFx.PulseOrb(orb);
+            MageStylizedFx.Flash(pos, Violet, 0.6f);
+            MageStylizedFx.Burst(pos, Violet, 6, 0.14f, 4f, 0.45f);
         }
     }
 

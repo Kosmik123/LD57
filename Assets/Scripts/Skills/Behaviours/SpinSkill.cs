@@ -15,14 +15,15 @@ public class SpinSkill : ISkillBehaviour
 
     private IEnumerator Spin(SkillContext ctx)
     {
-        SkillHit.SpawnEffect(ctx, ctx.Origin.position, ctx.Origin.rotation);
         var color = ctx.TierIndex >= SkillDefinition.MaxTier ? new Color(1f, 0.25f, 0.15f) : new Color(1f, 0.75f, 0.3f);
         SkillImpactVfx.SpinArc(ctx.Origin, ctx.Tier.Range, ctx.Tier.Duration, color);
+        VoxelFxRecipes.SpinStart(ctx.Origin, ctx.Tier.Range, ctx.Tier.Duration, ctx.TierIndex >= SkillDefinition.MaxTier);
         if (CameraShake.Instance != null) CameraShake.Instance.Shake(0.15f, 0.08f);
         float elapsed = 0f;
         while (elapsed < ctx.Tier.Duration)
         {
             Tick(ctx);
+            if (ctx.Origin != null) VoxelFxRecipes.SpinTick(ctx.Origin.position, ctx.Tier.Range, ctx.TierIndex >= SkillDefinition.MaxTier);
             yield return new WaitForSeconds(TickInterval);
             elapsed += TickInterval;
         }

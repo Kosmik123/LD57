@@ -10,8 +10,8 @@ public class ChainLightningSkill : ISkillBehaviour
 {
     private const float FirstRange = 8f;
     private const float JumpRange = 5f;
-    private const float ArcTime = 0.15f;
-    private static readonly Color Bolt = new Color(0.7f, 0.85f, 1f);
+    private const float ArcTime = 0.15f; // nieużywane po przejściu na MageStylizedFx.Bolt (klasa LightningArc zostaje)
+    private static readonly Color Bolt = new Color(0.6f, 0.8f, 1f);
 
     public void Execute(SkillContext ctx)
     {
@@ -37,8 +37,8 @@ public class ChainLightningSkill : ISkillBehaviour
 
         if (points.Count == 1) points.Add(from + ctx.AimDirection * 2.5f); // pudło: krótki trzask przed graczem
         Sfx.Play(SfxKind.Hit);
-        var go = new GameObject("Chain Lightning");
-        go.AddComponent<LightningArc>().Init(points, ArcTime, Bolt);
+        for (int i = 0; i < points.Count - 1; i++)
+            MageStylizedFx.Bolt(points[i], points[i + 1], Bolt, 0.36f, 0.22f);
     }
 
     private static void Strike(SkillContext ctx, Health target, Vector3 point, int damage)
@@ -46,8 +46,11 @@ public class ChainLightningSkill : ISkillBehaviour
         var col = target.GetComponentInChildren<Collider>();
         if (col != null)
             SkillHit.Apply(col, ctx, ctx.Origin.position, damage, 0f, ctx.Tier.Stun, null);
-        HitSplash.Burst(point, Bolt, 8);
-        WorldVfx.FlashLight(point, Bolt, 2f, 4f, 0.15f);
+        MageStylizedFx.Flash(point, Bolt, 0.9f);
+        MageStylizedFx.Burst(point, Bolt, 8, 0.1f, 6f, 0.4f);
+        MageStylizedFx.Electrify(target.transform, Bolt, 0.4f); // 4 bryły skaczą wokół trafionego
+        if (ctx.Tier.Stun > 0f)
+            MageAttachedCubes.Attach(target.transform, Bolt, 3, ctx.Tier.Stun, true, 0.16f);
     }
 }
 

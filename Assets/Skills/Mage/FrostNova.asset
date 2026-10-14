@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: FrostNova
   m_EditorClassIdentifier: 
   DisplayName: Lodowa nova
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 39f49081495ace3438daf2c711196262, type: 3}
   Kind: 6
   UsesSpaceSlot: 0
   Tiers:

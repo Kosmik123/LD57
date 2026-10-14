@@ -107,6 +107,18 @@ public class PlayerController : MonoBehaviour
     private bool dashRequested;
     private bool externalJumpRequested;
 
+    private float rootedUntil;
+
+    /// <summary>Gracz unieruchomiony (sieć bossa): ruch i dash zablokowane, input nadal czytany, atak i skille działają.</summary>
+    public bool IsRooted => Time.time < rootedUntil;
+
+    /// <summary>Unieruchamia gracza na `seconds` (dłuższe unieruchomienie wygrywa). Czas liczony Time.time, nie Invoke.</summary>
+    public void Root(float seconds)
+    {
+        if (seconds <= 0f) return;
+        rootedUntil = Mathf.Max(rootedUntil, Time.time + seconds);
+    }
+
     /// <summary>Wymusza skok (np. skill GroundSlam). Działa tylko gdy JumpEnabled.</summary>
     public void RequestJump()
     {
@@ -175,6 +187,13 @@ public class PlayerController : MonoBehaviour
         if (localDirection.z < 0)
             localDirection.z *= backwardsSpeedModified;
 
+        if (IsRooted)
+        {
+            localDirection = Vector3.zero; // animacje biegu nie grają w sieci
+            targetVelocity = Vector3.zero;
+            return;
+        }
+
         direction = transform.TransformDirection(localDirection);
         if (isGrounded == false)
             direction *= inAirSpeedModified;
@@ -208,7 +227,7 @@ public class PlayerController : MonoBehaviour
         if (dashCooldownRemaining > 0f)
             dashCooldownRemaining -= Time.deltaTime;
 
-        if (!isDashing && isGrounded && dashRequested && dashCooldownRemaining <= 0f)
+        if (!isDashing && isGrounded && dashRequested && dashCooldownRemaining <= 0f && !IsRooted)
         {
             StartDash();
         }
@@ -221,7 +240,7 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public bool ForceDash(Vector3 direction, float distance, float speed)
     {
-        if (isDashing || !isGrounded || speed <= 0f || distance <= 0f)
+        if (isDashing || IsRooted || !isGrounded || speed <= 0f || distance <= 0f)
             return false;
         direction.y = 0;
         if (direction.sqrMagnitude < 0.0001f)

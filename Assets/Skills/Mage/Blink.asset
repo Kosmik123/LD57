@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Blink
   m_EditorClassIdentifier: 
   DisplayName: Teleport
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 1b6f0cf75a5df844fbe7b5ad2142839c, type: 3}
   Kind: 8
   UsesSpaceSlot: 1
   Tiers:

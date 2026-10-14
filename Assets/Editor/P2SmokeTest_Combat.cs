@@ -144,6 +144,7 @@ public static partial class P0SmokeTest
     static List<Step> BuildCombatSteps()
     {
         int hpBefore = 0, enemyHpBefore = 0, enemiesBefore = 0;
+        bool spiderWallFound = false;
         Vector3 posBefore = Vector3.zero;
         var bossStates = new List<string>();
 
@@ -159,6 +160,30 @@ public static partial class P0SmokeTest
                 if (lvl != null) lvl.enabled = false;
                 foreach (var z in FindAll<WaveZone>()) foreach (var c in z.GetComponents<Collider>()) c.enabled = false;
                 Log("ekran kart i strefy wyłączone na czas testu walki");
+                // diagnostyka biomu: shader siatki poziomu, mech, drzewa
+                var lmBiom = Find<LevelManager>();
+                var levelRoot = lmBiom != null ? lmBiom.CurrentInstance : null;
+                if (levelRoot != null)
+                {
+                    var model = levelRoot.transform.Find("Model");
+                    var mr = model != null ? model.GetComponent<MeshRenderer>() : null;
+                    var mat = mr != null ? mr.sharedMaterial : null;
+                    var topTex = mat != null && mat.HasProperty("_TopMap") ? mat.GetTexture("_TopMap") as Texture2D : null;
+                    string topInfo = "brak";
+                    if (topTex != null)
+                    {
+                        try { var px = topTex.GetPixels32(); long r = 0, g = 0, b = 0; foreach (var c in px) { r += c.r; g += c.g; b += c.b; } topInfo = $"{topTex.name} {topTex.width}px avg=({r / px.Length},{g / px.Length},{b / px.Length})"; }
+                        catch (System.Exception e) { topInfo = topTex.name + " (nieczytelna: " + e.Message + ")"; }
+                    }
+                    int trees = 0, bushes = 0, stones = 0, torches = 0;
+                    foreach (var t in levelRoot.GetComponentsInChildren<Transform>(true))
+                    {
+                        if (t.name.StartsWith("Tree")) trees++; else if (t.name.StartsWith("Bush")) bushes++; else if (t.name.StartsWith("Stone")) stones++; else if (t.name.StartsWith("Torch ")) torches++;
+                    }
+                    var decor = levelRoot.GetComponentInChildren<CaveDecor>();
+                    Log($"biom: materiał={(mat ? mat.name : "brak")} shader={(mat ? mat.shader.name : "brak")} supported={(mat ? mat.shader.isSupported.ToString() : "-")} topColor={(mat && mat.HasProperty("_TopColor") ? mat.GetColor("_TopColor").ToString() : "-")} topThr={(mat && mat.HasProperty("_TopThreshold") ? mat.GetFloat("_TopThreshold").ToString("F2") : "-")} topMap={topInfo}; drzewa {trees}, krzaki {bushes}, kamienie {stones}, pochodnie {torches}, CaveDecor={(decor != null)}; mesh normal[0]={(mr != null && mr.GetComponent<MeshFilter>()?.sharedMesh != null && mr.GetComponent<MeshFilter>().sharedMesh.normals.Length > 0 ? mr.GetComponent<MeshFilter>().sharedMesh.normals[0].ToString() : "-")}");
+                    ShotClose("01-level1-close");
+                }
                 return null;
             }},
             new Step { Name = "skille przyznane: Spin, Charge, AxeThrow w slotach, GroundSlam na spacji", Wait = 0.2,
@@ -495,6 +520,69 @@ public static partial class P0SmokeTest
                 if (bossStates.Count < 2) return "boss nie zmienia stanów: " + string.Join(",", bossStates);
                 return null;
             }},
+            new Step { Name = "boss: zniszczenie 5 nóg = przewrócenie", Wait = 2.8,
+                Act = () =>
+                {
+                    var boss = Find<SpiderMotherBoss>();
+                    if (boss == null) { Log("nogi bossa: brak bossa"); return; }
+                    int destroyed = 0;
+                    foreach (var leg in boss.Legs)
+                    {
+                        if (destroyed >= 5) break;
+                        if (leg == null || leg.Health == null || leg.Health.IsDead) continue;
+                        leg.Damage(leg.MaxHealth);
+                        destroyed++;
+                    }
+                    Log($"nogi bossa: zniszczono {destroyed}, żywych {boss.AliveLegs}, do zniszczenia {boss.LegsToDestroy}");
+                },
+                Check = () =>
+            {
+                ShotClose("16-boss-legs-close");
+                var boss = Find<SpiderMotherBoss>();
+                var gm = Find<GameManager>();
+                bool dead = boss == null || boss.GetComponent<Health>().IsDead;
+                Log($"nogi bossa: boss {(boss ? "jest" : "brak")}, collapsing={(boss ? boss.IsCollapsing.ToString() : "-")}, martwy={dead}, IsRunOver={gm.IsRunOver}");
+                if (boss != null && !boss.IsCollapsing && !dead) return $"boss po utracie 5 nóg nie przewraca się (żywych nóg {boss.AliveLegs})";
+                return null;
+            }},
+            new Step { Name = "pająk na ścianie: perch, bieg po ścianie, orientacja", Wait = 1.2,
+                Act = () =>
+                {
+                    SpiderSpawnHelper.Reset();
+                    spiderWallFound = false;
+                    var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(SpiderPrefabPath);
+                    var entryT = CurrentEntry() != null ? CurrentEntry().transform.position : Player.transform.position;
+                    var cands = new List<Vector3> { Player.transform.position, entryT };
+                    foreach (var z in Zones) cands.Add(z.transform.position);
+                    foreach (var c in cands)
+                    {
+                        if (!SpiderSpawnHelper.FindWallAbove(c, out var wallPt, out var wallN, 20f, true)) continue;
+                        var standAt = wallPt + wallN * 6f;
+                        if (NavMesh.SamplePosition(standAt, out var h, 3f, NavMesh.AllAreas)) standAt = h.position;
+                        Teleport(standAt + Vector3.up * 0.3f);
+                        var toWall = Flat(wallPt - Player.transform.position);
+                        if (toWall.sqrMagnitude > 0.01f) Player.transform.rotation = Quaternion.LookRotation(toWall);
+                        SpiderSpawnHelper.SpawnForTest(prefab, wallPt + wallN * 2f, Player.transform.position, false);
+                        Log($"pająk-ściana: ściana {wallPt} normalna {wallN}, gracz {Player.transform.position}, tryb {SpiderSpawnHelper.LastSpawnMode}");
+                        spiderWallFound = true;
+                        break;
+                    }
+                    if (!spiderWallFound) Log("pająk-ściana: brak ściany w 20 m od gracza, wejścia i stref");
+                },
+                Check = () =>
+            {
+                ShotClose("15-spider-wall-close");
+                var sp = Find<SpiderController>();
+                float dot = sp != null ? Vector3.Dot(sp.transform.up, sp.SurfaceNormal) : -2f;
+                Log($"pająk-ściana: tryb={SpiderSpawnHelper.LastSpawnMode} perches={SpiderSpawnHelper.WallPerches} wallWalks={SpiderSpawnHelper.WallWalks} stan={(sp ? sp.Current.ToString() : "brak")} onSurface={(sp ? sp.OnSurface.ToString() : "-")} dot(up,normalna)={dot:F2} pos={(sp ? sp.transform.position.ToString() : "-")}");
+                KillAll();
+                if (!spiderWallFound) return "brak ściany w 20 m (geometria poziomu 1)";
+                if (SpiderSpawnHelper.LastSpawnMode != "wall") return "pająk nie na ścianie, tryb: " + SpiderSpawnHelper.LastSpawnMode;
+                if (SpiderSpawnHelper.WallPerches < 1) return "WallPerches = 0";
+                if (SpiderSpawnHelper.WallWalks < 1) return "pająk nie zaczął biec po ścianie (gracz 6 m od ściany)";
+                if (sp != null && sp.Current == SpiderController.State.WallWalk && dot < 0.9f) return $"pająk na ścianie nie jest zorientowany do niej (dot {dot:F2})";
+                return null;
+            }},
             new Step { Name = "mag: klasa, pocisk w bossa, powrót do wojownika", Wait = 0.7,
                 Act = () =>
                 {
@@ -535,7 +623,10 @@ public static partial class P0SmokeTest
                 Check = () =>
             {
                 var gm = Find<GameManager>();
-                if (!gm.IsRunOver) return "boss zabity, ale IsRunOver = false";
+                int lvl = Find<LevelManager>() != null ? Find<LevelManager>().CurrentLevel : 1;
+                // od rundy 13 boss pokonany przed poziomem 8 (playtest) nie kończy runu; wygrana tylko na dnie
+                if (lvl >= 8 && !gm.IsRunOver) return "boss zabity na poziomie 8, ale IsRunOver = false";
+                if (lvl < 8 && gm.IsRunOver) return $"boss zabity na poziomie {lvl} zakończył run (ma trwać dalej)";
                 Shot("07-win");
                 return null;
             }},

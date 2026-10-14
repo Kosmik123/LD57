@@ -53,6 +53,15 @@ public class SkillUser : MonoBehaviour
             Process(slots.Slots[i], SkillSlots.SlotKeys[i]);
         if (slots.SpaceSkill != null)
             Process(slots.SpaceSkill, SkillSlots.SpaceSlotKey);
+
+        // Koło szybkiego wyboru: PPM używa aktywnego skilla (ten sam timer co slot Q/E/R),
+        // rolka i Tab przełączają. PPM czytany jako przycisk myszy 1 (oś Fire2 ma też Left Alt).
+        if (Input.GetMouseButtonDown(1))
+            TryExecute(slots.WheelSkill);
+        float scroll = Input.mouseScrollDelta.y;
+        if (scroll > 0f) slots.CycleWheel(-1);
+        else if (scroll < 0f) slots.CycleWheel(1);
+        if (Input.GetKeyDown(KeyCode.Tab)) slots.CycleWheel(1);
     }
 
     private void Process(SkillInstance skill, KeyCode key)
@@ -60,7 +69,13 @@ public class SkillUser : MonoBehaviour
         if (skill.CooldownRemaining > 0f)
             skill.CooldownRemaining = Mathf.Max(0f, skill.CooldownRemaining - Time.deltaTime);
 
-        if (!Input.GetKeyDown(key) || !skill.IsReady || player.IsDashing) return;
+        if (!Input.GetKeyDown(key)) return;
+        TryExecute(skill);
+    }
+
+    private void TryExecute(SkillInstance skill)
+    {
+        if (skill == null || !skill.IsReady || player.IsDashing) return;
         if (!behaviours.TryGetValue(skill.Definition.Kind, out var behaviour)) return;
 
         var aim = player.transform.forward;

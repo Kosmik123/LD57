@@ -40,7 +40,8 @@ public class GroundSlamSkill : ISkillBehaviour
         var hits = Physics.OverlapSphere(center, ctx.Tier.Range, ctx.EnemyLayers);
         foreach (var col in hits)
             SkillHit.Apply(col, ctx, center, ctx.Tier.Damage, ctx.Tier.Knockback, ctx.Tier.Stun, already);
-        SkillHit.SpawnEffect(ctx, center, Quaternion.identity);
-        SkillImpactVfx.Shockwave(center, ctx.Tier.Range, ctx.TierIndex >= SkillDefinition.MaxTier ? new Color(1f, 0.35f, 0.15f) : new Color(1f, 0.8f, 0.45f));
+        bool evolved = ctx.TierIndex >= SkillDefinition.MaxTier;
+        SkillImpactVfx.Shockwave(center, ctx.Tier.Range, evolved ? new Color(1f, 0.35f, 0.15f) : new Color(1f, 0.8f, 0.45f));
+        VoxelFxRecipes.GroundSlam(center, ctx.Tier.Range, evolved);
     }
 }

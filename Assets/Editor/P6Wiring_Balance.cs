@@ -31,6 +31,7 @@ public static class P6Wiring_Balance
         WireEnemyStats();
         WireWaveCounts();
         WirePlayerKnockback();
+        WireBossEncounter(1);
         AssetDatabase.SaveAssets();
         Debug.Log("[P6Balance] done");
     }
@@ -137,6 +138,26 @@ public static class P6Wiring_Balance
                 SetFloat(blade, "knockback", 0.9f);
             PrefabUtility.SaveAsPrefabAsset(root, PlayerPath);
             Debug.Log("[P6Balance] Player.prefab: knockback 0.9");
+        }
+        finally { PrefabUtility.UnloadPrefabContents(root); }
+    }
+
+    /// <summary>Boss do playtestów na wskazanym poziomie (poza strefami; krata od niego nie zależy).</summary>
+    static void WireBossEncounter(int level)
+    {
+        string path = $"Assets/Prefabs/Levels/Level {level}.prefab";
+        var boss = AssetDatabase.LoadAssetAtPath<GameObject>(BossPath);
+        var root = PrefabUtility.LoadPrefabContents(path);
+        try
+        {
+            var enc = root.GetComponent<BossEncounter>();
+            if (enc == null) enc = root.AddComponent<BossEncounter>();
+            var so = new SerializedObject(enc);
+            so.FindProperty("levelNumber").intValue = level;
+            so.FindProperty("bossPrefab").objectReferenceValue = boss;
+            so.ApplyModifiedPropertiesWithoutUndo();
+            PrefabUtility.SaveAsPrefabAsset(root, path);
+            Debug.Log($"[P6Balance] Level {level}: BossEncounter (boss do playtestów) OK");
         }
         finally { PrefabUtility.UnloadPrefabContents(root); }
     }

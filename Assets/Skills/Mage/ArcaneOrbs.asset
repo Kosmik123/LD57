@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ArcaneOrbs
   m_EditorClassIdentifier: 
   DisplayName: Magiczne kule
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: db446577489b5f943b2d268293470dbb, type: 3}
   Kind: 7
   UsesSpaceSlot: 0
   Tiers:

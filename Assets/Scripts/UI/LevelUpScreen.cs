@@ -108,24 +108,50 @@ public class LevelUpScreen : MonoBehaviour
             {
                 cardTitles[i].text = "+" + HpCardAmount + " HP";
                 cardDescriptions[i].text = "Leczy " + HpCardAmount + " punktów zdrowia.";
-                if (cardIcons[i] != null) cardIcons[i].enabled = false;
+                if (cardIcons[i] != null)
+                {
+                    cardIcons[i].sprite = SkillIcons.HeartIcon();
+                    cardIcons[i].preserveAspect = true;
+                    cardIcons[i].enabled = true;
+                }
                 continue;
             }
 
             var def = offer[i];
             int target = Mathf.Min(slots.TierOf(def) + 1, SkillDefinition.MaxTier);
             cardTitles[i].text = def.DisplayName + " · " + tierNames[target];
-            cardDescriptions[i].text = def.Tiers[target].Description;
+            cardDescriptions[i].text = TierText(def, target);
             if (cardIcons[i] != null)
             {
-                cardIcons[i].sprite = def.Icon;
-                cardIcons[i].enabled = def.Icon != null;
+                var icon = SkillIcons.Get(def);
+                cardIcons[i].sprite = icon;
+                cardIcons[i].preserveAspect = true;
+                cardIcons[i].enabled = icon != null;
             }
         }
         AnimateCards();
         acceptAfter = Time.unscaledTime + inputGrace;
         SetCardsInteractable(false);
         DOVirtual.DelayedCall(inputGrace, () => { if (isOpen && !busy) SetCardsInteractable(true); }, true);
+    }
+
+    /// <summary>Opis tieru + linia liczb: przy ulepszeniu „poprzedni → nowy” (odnowienie, obrażenia).</summary>
+    private static string TierText(SkillDefinition def, int target)
+    {
+        var next = def.Tiers[target];
+        string text = next.Description;
+        bool upgrade = target > 0;
+        var prev = upgrade ? def.Tiers[target - 1] : null;
+        string cd = upgrade && !Mathf.Approximately(prev.Cooldown, next.Cooldown)
+            ? prev.Cooldown.ToString("0.##") + " → " + next.Cooldown.ToString("0.##")
+            : next.Cooldown.ToString("0.##");
+        string stats = "Odnowienie " + cd + " s";
+        if (next.Damage > 0 || (upgrade && prev.Damage > 0))
+        {
+            stats += "  ·  Obrażenia ";
+            stats += upgrade && prev.Damage != next.Damage ? prev.Damage + " → " + next.Damage : next.Damage.ToString();
+        }
+        return text + "\n\n<size=80%><color=#FFD966>" + stats + "</color></size>";
     }
 
     private void SetCardsInteractable(bool on)

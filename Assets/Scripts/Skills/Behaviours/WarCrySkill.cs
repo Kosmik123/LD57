@@ -7,7 +7,7 @@ public class WarCrySkill : ISkillBehaviour
     public void Execute(SkillContext ctx)
     {
         var center = ctx.Origin.position;
-        SkillHit.SpawnEffect(ctx, center, ctx.Origin.rotation);
+        VoxelFxRecipes.WarCry(ctx.Runner, ctx.Origin, ctx.Tier.Range, ctx.Tier.Duration, ctx.TierIndex >= SkillDefinition.MaxTier);
         var already = new HashSet<Health>();
         var hits = Physics.OverlapSphere(center, ctx.Tier.Range, ctx.EnemyLayers);
         foreach (var col in hits)
